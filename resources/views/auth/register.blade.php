@@ -2,12 +2,22 @@
 <html lang="en">
 
 <head>
+    @notifyCss
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nelish Serenity Spa - Login</title>
     @vite('resources/css/app.css')
     <link rel="stylesheet" href="Login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style type="text/css">
+        .notify{
+            z-index: 1001 !important;
+            margin: 20px;
+            font-size: 14px !important;   /* Smaller text */
+            padding: 2px !important;     /* Adjust padding */
+            border-radius: 8px !important; /* Softer corners */
+        }
+    </style>
 </head>
 <style>
     * {
@@ -395,7 +405,7 @@
 </style>
 
 <body>
-
+@include('notify::components.notify')
     <main>
         <div class="login-container">
             <div class="image-section">
@@ -489,7 +499,7 @@
                                     <option value="">Select Role</option>
                                     <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                                     <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
-                                    <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Manager</option>
+                                    <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Therapist</option>
                                 </select>
                                 @error('role')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
@@ -528,6 +538,8 @@
             </div>
         </div>
     </main>
+    <x-notify::notify />
+    @notifyJs
 
    
 </body>

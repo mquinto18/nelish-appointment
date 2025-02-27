@@ -24,6 +24,8 @@ class User extends Authenticatable
         'birth_date',
         'mobile_number',
         'password',
+        'experience',
+        'language',
         'auth_provider',
         'auth_provider_id',
         'role',

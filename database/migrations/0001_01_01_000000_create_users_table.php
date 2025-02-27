@@ -19,6 +19,8 @@ return new class extends Migration
             $table->date('birth_date')->nullable();  // Make birth_date nullable (optional)
             $table->string('mobile_number', 15)->nullable(); // Allowing up to 15 characters for international formats
             $table->string('password');
+            $table->integer('experience')->default(0);
+            $table->string('language')->nullable();
             $table->string('auth_provider')->nullable();
             $table->string('auth_provider_id')->nullable();
             $table->string('role')->nullable();

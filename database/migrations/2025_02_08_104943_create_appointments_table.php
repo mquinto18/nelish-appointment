@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade'); // Allow null users for guest bookings
             $table->string('name')->nullable(); // User's name (nullable for guests)
+            $table->string('email')->nullable(); // User's name (nullable for guests)
             $table->json('services')->nullable(); // JSON array of services
             $table->date('date')->nullable(); // Allow nullable appointment date
             $table->time('time')->nullable(); // Allow nullable appointment time

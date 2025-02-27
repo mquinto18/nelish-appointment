@@ -50,6 +50,8 @@ class AuthController extends Controller
                         'password' => Hash::make('password'), // Secure random password
                     ]);
 
+                    
+
 
                     if ($userData) {
                         Auth::login($userData);
@@ -91,7 +93,7 @@ class AuthController extends Controller
                 return redirect()->route('admin.home');
 
             case 'manager': // If role is manager
-                return redirect()->route('manager.home');
+                return redirect()->route('therapist.home');
 
             case 'user': // If role is user
                 return redirect()->route('home');
@@ -107,35 +109,41 @@ class AuthController extends Controller
     }
 
     public function registerSave(Request $request)
-    {
-        // Validate input fields
-        $validatedData = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'birth_date' => 'required|date',
-            'mobile_number' => 'required|digits:10',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,user,manager',
-        ]);
+{
+    // Validate input fields
+    $validatedData = $request->validate([
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'birth_date' => 'required|date',
+        'mobile_number' => 'required|digits:10',
+        'password' => 'required|string|min:8|confirmed',
+        'role' => 'required|in:admin,user,manager',
+    ]);
 
-        // Save the user in the database
-        $user = User::create([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'email' => $validatedData['email'],
-            'birth_date' => $validatedData['birth_date'],
-            'mobile_number' => $validatedData['mobile_number'],
-            'password' => Hash::make($validatedData['password']),
-            'role' => $validatedData['role'],
-        ]);
+    if ($validatedData['role'] === 'admin') {
+        // Store the admin in session instead of database
+        $pendingAdmins = session()->get('pending_admins', []);
+        $pendingAdmins[] = $validatedData; // Add new admin to array
+        session()->put('pending_admins', $pendingAdmins);
 
-
-        // Redirect with success message
-
-        return redirect()->route('login')->with('success', 'Registration successful.');
+        notify()->success('Register successfully wait for the approval process');
+        return redirect()->route('register')->with('success', 'Admin registration is pending approval.');
     }
 
+    // If not admin, save directly to database
+    User::create([
+        'first_name' => $validatedData['first_name'],
+        'last_name' => $validatedData['last_name'],
+        'email' => $validatedData['email'],
+        'birth_date' => $validatedData['birth_date'],
+        'mobile_number' => $validatedData['mobile_number'],
+        'password' => Hash::make($validatedData['password']),
+        'role' => $validatedData['role'],
+    ]);
+   
+    return redirect()->route('login')->with('success', 'Registration successful.');
+}
     public function logout(Request $request)
     {
         Auth::logout();
