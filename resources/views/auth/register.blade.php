@@ -10,12 +10,15 @@
     <link rel="stylesheet" href="Login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style type="text/css">
-        .notify{
+        .notify {
             z-index: 1001 !important;
             margin: 20px;
-            font-size: 14px !important;   /* Smaller text */
-            padding: 2px !important;     /* Adjust padding */
-            border-radius: 8px !important; /* Softer corners */
+            font-size: 14px !important;
+            /* Smaller text */
+            padding: 2px !important;
+            /* Adjust padding */
+            border-radius: 8px !important;
+            /* Softer corners */
         }
     </style>
 </head>
@@ -405,7 +408,7 @@
 </style>
 
 <body>
-@include('notify::components.notify')
+    @include('notify::components.notify')
     <main>
         <div class="login-container">
             <div class="image-section">
@@ -460,18 +463,39 @@
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
+                            <!-- Gender Selection -->
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select name="gender" id="gender" required class="text-black">
+                                    <option value="">Select Gender</option>
+                                    <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
+                                    <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
+                                    <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
+                                </select>
+                                @error('gender')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                                @enderror
+                            </div>
 
                             <!-- Mobile Number Field -->
-                            <div class="form-group">
-                                <label for="mobile_number">Mobile Number</label>
-                                <input type="tel" name="mobile_number" id="mobile_number"
-                                    placeholder="Enter your mobile number"
-                                    required value="{{ old('mobile_number') }}"
-                                    class="text-black">
+                            <div>
+                                <label for="mobile_number" >Mobile Number</label>
+                                <div class="flex items-center">
+                                    <span class="px-3 py-2 bg-gray-200 border border-gray-300 rounded-l-md text-gray-700">+63</span>
+                                    <input type="text" name="mobile_number" id="mobile_number"
+                                        class="block w-full rounded-r-md border border-gray-300 p-2 focus:ring-blue-500 focus:border-blue-500 text-black bg-white placeholder-gray-400"
+                                        pattern="^9\d{9}$"
+                                        maxlength="10"
+                                        placeholder="9123456789"
+                                        value="{{ old('mobile_number', auth()->user()->mobile_number ?? '') }}"
+                                        required>
+                                </div>
                                 @error('mobile_number')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
+
+
 
                             <!-- Password Field -->
                             <div class="form-group">
@@ -525,13 +549,7 @@
                 </form>
 
 
-                <div class="divider">
-                    <span>Or</span>
-                </div>
-                <div class="social-buttons">
-                    <button class="social-btn"><i class="fab fa-facebook"></i>Login with Facebook</button>
-                    <button class="social-btn"><i class="fab fa-google"></i>Login with Google</button>
-                </div>
+
                 <div class="register-link">
                     <p>Already have an account? <a href="/login">Login here</a></p>
                 </div>
@@ -541,7 +559,7 @@
     <x-notify::notify />
     @notifyJs
 
-   
+
 </body>
 
 </html>

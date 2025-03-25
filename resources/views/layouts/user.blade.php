@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @vite('resources/css/app.css')
+    <link rel="icon" type="image/png" href="{{ asset('images/nelish-logo.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Dashboard</title>
@@ -30,9 +31,9 @@
 
                     <div class="no-underline">
                         <a href="{{ url('/') }}" class="text-white px-3 py-2 rounded-md text-sm no-underline">Home</a>
-                        <a href="#" class="text-white hover:text-white px-3 py-2 rounded-md text-sm no-underline">About Us</a>
-                        <a href="#" class="text-white hover:text-white px-3 py-2 rounded-md text-sm no-underline">Services</a>
-                        <a href="#" class="text-white hover:text-white px-3 py-2 rounded-md text-sm no-underline">Contact</a>
+                        <a href="{{ url('/#about-section') }}" class="text-white hover:text-white px-3 py-2 rounded-md text-sm no-underline">About Us</a>
+                        <a href="{{ url('/#services-section') }}" class="text-white hover:text-white px-3 py-2 rounded-md text-sm no-underline">Services</a>
+                        <a href="{{ url('/#contact-section') }}" class="text-white hover:text-white px-3 py-2 rounded-md text-sm no-underline">Contact</a>
                     </div>
 
                     @if(Auth::check())
@@ -54,6 +55,11 @@
                                     @csrf
                                     <button type="submit" class="btn btn-danger">Sign Out</button>
                                 </form>
+                               <div class="py-2">
+                                <a href="{{ route('account.settings') }}" class="text-black no-underline ">
+                                        Account settings
+                                    </a>
+                               </div>
                             </li>
                         </ul>
                     </div>
@@ -74,6 +80,21 @@
     @notifyJs
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (window.location.hash) {
+                let target = document.querySelector(window.location.hash);
+                if (target) {
+                    setTimeout(() => {
+                        target.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+                    }, 100); // Small delay to ensure rendering
+                }
+            }
+        }); 
+    </script>
 </body>
 
 </html>

@@ -25,10 +25,11 @@ class UserController extends Controller
 
     public function storeServices(Request $request)
     {
+     
         try {
             // Validate the incoming request data
             $validated = $request->validate([
-                'service_title' => 'required|string',
+                'service_title' => 'required|json',
                 'service_price' => 'required|numeric',
                 'duration' => 'required|integer',
                 'people_count' => 'required|integer|min:1',
@@ -51,7 +52,7 @@ class UserController extends Controller
                 'user_id' => $user->id,
                 'first_name' => $firstName, // Store only the first name
                 'email' => $user->email,
-                'services' => [$validated['service_title']],
+                'services' => json_decode($validated['service_title'], true),
                 'amount' => $totalAmount,
                 'duration' => $validated['duration'],
                 'quantity' => $validated['people_count'],
@@ -85,42 +86,44 @@ class UserController extends Controller
             'date' => $validated['selected_date'],
         ];
 
-        // Store selected date in session
+
         session(['selected_date' => $bookingTime]);
 
-        // Dump and die to check the session data
+ 
         return redirect()->route('appointment.time')->with('success', 'Service details stored in session.');
     }
     public function appointmentTime()
 {
     $bookingData = session('service_booking', []);
-    $selectedDate = session('selected_date', now()->toDateString()); // Ensure the date is set
+    $selectedDate = session('selected_date', now()->toDateString());
+    
+    // Retrieve duration from session or set a default value
+    $duration = session('service_booking.duration', 60); 
 
-    // Fetch booked slots for the selected date and convert to 12-hour format
     $bookedTimes = AppointmentSlot::where('date', $selectedDate)
         ->pluck('time')
         ->map(function ($time) {
-            return \Carbon\Carbon::createFromFormat('H:i:s', $time)->format('g:i A'); // Convert to 12-hour format
+            return \Carbon\Carbon::createFromFormat('H:i:s', $time)->format('g:i A'); 
         })
         ->toArray();
 
-    $therapists = User::where('role', 'manager')->get(); // Fetch only managers
+    $therapists = User::where('role', 'manager')->get(); 
 
-    return view('appointment.time_appointment', compact('bookingData', 'therapists', 'bookedTimes', 'selectedDate'));
+    return view('appointment.time_appointment', compact('bookingData', 'therapists', 'bookedTimes', 'selectedDate', 'duration'));
 }
     public function storeTime(Request $request)
     {
         $validated = $request->validate([
             'selected_time' => 'required',
-            'selected_therapist' => 'required|string', // Ensure therapist name is provided
+            'selected_therapist' => 'required|string', 
         ]);
 
         $bookingTime = [
             'time' => $validated['selected_time'],
-            'therapist' => $validated['selected_therapist'], // Store only therapist name
+            'therapist' => $validated['selected_therapist'], 
         ];
 
-        // Store selected time and therapist in session
+
         session(['selected_time' => $bookingTime]);
 
         return redirect()->route('appointment.appointment_confirm')->with('success', 'Time and therapist selection stored in session.');
@@ -129,15 +132,14 @@ class UserController extends Controller
 
     public function appointmentConfirm()
     {
-        // Fetch session data separately
+
         $serviceBooking = session('service_booking', []);
         $selectedDate = session('selected_date', []);
         $selectedTime = session('selected_time', []);
 
-        // Combine all session data into one array
         $bookingData = array_merge($serviceBooking, $selectedDate, $selectedTime);
 
-        // Check if therapist ID exists in session
+      
         if (isset($bookingData['therapist'])) {
             $therapist = User::find($bookingData['therapist']); // Fetch therapist by ID
             $bookingData['therapist_name'] = $therapist ? $therapist->first_name : 'Unknown Therapist'; // Handle null case
@@ -163,20 +165,13 @@ class UserController extends Controller
         'amount' => 'required|numeric',
     ]);
 
-    // Get the logged-in user
+
     $user = Auth::user();
-
-    // Convert time to 24-hour format (HH:MM:SS)
     $validated['time'] = Carbon::parse($validated['time'])->format('H:i:s');
-
-    // Convert services array to JSON before storing
     $validated['services'] = json_encode($validated['services']);
-
-    // Add user details
-    $validated['user_id'] = $user->id ?? null; // Store user ID (nullable for guests)
-    $validated['name'] = $user->first_name ?? 'Guest'; // Store user name (default to 'Guest' if not logged in)
+    $validated['user_id'] = $user->id ?? null; 
+    $validated['name'] = $user->first_name ?? 'Guest'; 
     $validated['email'] = $user->email ?? null;
-    // Check if the slot is available
     $slotExists = AppointmentSlot::where('time', $validated['time'])
         ->where('therapist', $validated['therapist'])
         ->where('date', $validated['date'])
@@ -186,10 +181,9 @@ class UserController extends Controller
         return redirect()->back()->with('error', 'The selected time slot is already booked.');
     }
 
-    // Save appointment to database
+
     $appointment = Appointment::create($validated);
 
-    // Insert the slot into appointment_slots table
     AppointmentSlot::create([
         'user_id' => $validated['user_id'],
         'time' => $validated['time'],
@@ -198,6 +192,35 @@ class UserController extends Controller
     ]);
     notify()->success('Appointment submitted successfully!');
     return redirect()->route('home')->with('success', 'Appointment booked successfully!');
+}
+
+public function accountSettings()
+{
+    return view('auth.settings');
+}
+
+
+public function update(Request $request)
+{
+    $user = Auth::user();
+
+    $request->validate([
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'birth_date' => 'nullable|date',
+        'mobile_number' => 'nullable|string|max:15',
+    ]);
+
+    $user->update([
+        'first_name' => $request->first_name,
+        'last_name' => $request->last_name,
+        'email' => $request->email,
+        'birth_date' => $request->birth_date,
+        'mobile_number' => $request->mobile_number,
+    ]);
+
+    return redirect()->back()->with('success', 'Account details updated successfully.');
 }
 
 

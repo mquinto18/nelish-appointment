@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PayMongoController;
 use App\Http\Controllers\TherapistController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -10,8 +12,7 @@ Route::get('/', function () {
     return view('home');
 });
 
-Route::controller(AuthController::class)->group(function () 
-{
+Route::controller(AuthController::class)->group(function () {
     Route::get('login', 'login')->name('login');
     Route::post('login', 'loginAction')->name('login.action');
 
@@ -25,8 +26,7 @@ Route::controller(AuthController::class)->group(function ()
 });
 
 
-Route::middleware(['auth', 'user'])->group(function () 
-{
+Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/home', [UserController::class, 'index'])->name('home');
 
     Route::get('/home/services-appointment', [UserController::class, 'spa_appointment'])->name('appointment.user');
@@ -38,11 +38,19 @@ Route::middleware(['auth', 'user'])->group(function ()
     Route::post('/home/services-appointment/storeDate', [UserController::class, 'storeDate'])->name('appointment.storeDate');
     Route::post('/home/services-appointment/storeTime', [UserController::class, 'storeTime'])->name('appointment.timeStore');
     Route::post('/home/services-appointment/confirmStore', [UserController::class, 'confirmStore'])->name('appointment.ConfirmStore');
-    
+
+    Route::post('/paymongo/gcash', [PayMongoController::class, 'gcashPayment'])->name('paymongo.gcash');
+    Route::post('/paymongo/bank', [PayMongoController::class, 'bankPayment'])->name('paymongo.bank');
+    Route::post('/services/cancel', [UserController::class, 'appointmentCancel'])->name('appointment.cancel');
+
+    Route::get('/payment/success', [PayMongoController::class, 'paymentSuccess'])->name('payment.success');
+    Route::get('/payment/failed', [PayMongoController::class, 'paymentFailed'])->name('payment.failed');
+    Route::get('/home/accountSettings', [UserController::class, 'accountSettings'])->name('account.settings');
+    Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
+    Route::put('/account/password', [AccountController::class, 'password'])->name('account.password');
 });
 
-Route::middleware(['auth', 'admin'])->group(function() 
-{
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.home');
     Route::get('/clientTherapist', [AdminController::class, 'clientTherapist'])->name('clientTherapist.data');
     Route::get('/Appointment', [AdminController::class, 'viewAppointment'])->name('viewAppointment');
@@ -54,13 +62,13 @@ Route::middleware(['auth', 'admin'])->group(function()
     Route::put('/admin/appointments/{appointment}', [AdminController::class, 'appointmentUpdate'])->name('appointments.update');
     Route::delete('/appointment/{id}', [AdminController::class, 'destroy'])->name('appointment.delete');
     Route::get('/dtrView/{therapist}/{weekOffset?}', [AdminController::class, 'dtrView'])->name('dtr.view');
+    Route::get('/admin/systemUser', [AdminController::class, 'systemuser'])->name('systemUser');
 
+   
 });
 
-Route::middleware(['auth', 'manager'])->group(function() 
-{
+Route::middleware(['auth', 'manager'])->group(function () {
     Route::get('/therapist', [TherapistController::class, 'index'])->name('therapist.home');
     Route::get('/dailyTimeRecord', [TherapistController::class, 'dailyRecord'])->name('dailyTimeRecord');
     Route::post('/dailyTimeRecord', [TherapistController::class, 'therapistDtr'])->name('therapist.dtr');
-    
 });

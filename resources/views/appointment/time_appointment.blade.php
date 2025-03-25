@@ -47,11 +47,15 @@
                         </tr>
                     </thead>
                     <tbody id="time-slots">
-                        @foreach ([
-                        '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM',
+                        @php
+                        $timeSlots = ($duration == 60) ?
+                        ['1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'] :
+                        ['1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM',
                         '4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM',
-                        '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM'
-                        ] as $time)
+                        '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM'];
+                        @endphp
+
+                        @foreach ($timeSlots as $time)
                         @php
                         $isBooked = in_array($time, $bookedTimes);
                         @endphp
@@ -69,6 +73,7 @@
                         </tr>
                         @endforeach
                     </tbody>
+
                 </table>
             </div>
 
@@ -86,13 +91,15 @@
                     </div>
                     @endforeach
                 </div>
+                <!-- Submit Button -->
+                <div class="text-center mt-6">
+                    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Confirm Appointment</button>
+                </div>
             </div>
+
         </div>
 
-        <!-- Submit Button -->
-        <div class="text-center mt-6">
-            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Confirm Appointment</button>
-        </div>
+
     </form>
 </div>
 

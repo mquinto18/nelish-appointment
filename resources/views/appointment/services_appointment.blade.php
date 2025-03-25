@@ -315,14 +315,6 @@
         <main>
             <aside class="sidebar">
                 <h2>Select Services</h2>
-                <div class="gender">
-                    <label for="gender">Are you a?</label>
-                    <select id="gender">
-                        <option value="">Select your gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
-                </div>
 
 
                 <div class="services">
@@ -378,7 +370,7 @@
                 @csrf
                 <section class="details-container">
                     <section class="details">
-                        <img src="" alt="" class="service-image">
+                    <img src="{{ asset('images/default.jpg') }}" alt="" class="service-image">
                         <h1 class="service-title">{{ $serviceTitle ?? '' }}</h1>
                         <p class="service-description"></p>
                         <p class="service-price">{{ $servicePrice ?? '' }}</p>
@@ -406,8 +398,9 @@
                         </div>
 
                         <!-- Hidden fields to store service title, price, and other data -->
-                        <input type="hidden" name="service_title" id="hiddenServiceTitle" value="{{ $serviceTitle ?? '' }}">
-                        <input type="hidden" name="service_price" id="hiddenServicePrice" value="{{ $servicePrice ?? '' }}">
+                        <input type="hidden" name="service_title" id="hiddenServiceTitle">
+                        <input type="hidden" name="service_price" id="hiddenServicePrice">
+                        <input type="hidden" name="selected_services" id="selectedServicesInput" value="">
 
                         <button type="submit" class="next-btn">Next</button>
                     </section>
@@ -421,78 +414,104 @@
 
     </div>
 </div>
-<script>
-    function updateQuantity(change) {
-        const input = document.getElementById('peopleCount');
-        let currentValue = parseInt(input.value, 10) || 1;
-        const minValue = parseInt(input.min, 10) || 1;
-
-        currentValue += change;
-
-        // Ensure quantity does not go below the minimum
-        if (currentValue < minValue) {
-            currentValue = minValue;
-        }
-
-        input.value = currentValue;
+<style>
+    .service.selected {
+        border: 2px solid #FFD700;
+        /* Highlight selected services */
     }
+</style>
+<script>
+    let selectedServices = [];
+    let lastSelectedService = ''; // Track the latest selected service
+    let lastSelectedImage = ''; // Track the latest selected image
 
     document.querySelectorAll('.service').forEach(service => {
         service.addEventListener('click', function() {
             const serviceType = this.getAttribute('data-service');
-
-            // Use fixed image paths
-            const imageMap = {
-                'deep-tissue': 'DEEP TISSUE MASSAGE.jpg',
-                'body-scrub': 'BODY SCRUB MASSAGE.jpg',
-                'aromatherapy': 'AROMATHERAPY.jfif',
-                'body-scrub-whole': 'BODY_SCRUB.jpg',
-                'foot-reflex': 'FOOT REFLEX MASSAGE.jpg',
-                'foot-scrub': 'FOOT_MASSAGE.jpeg',
-                'head-ear': 'HEAD_CANDLING.jpg',
-                'kids-relaxing': 'KIDS_MASSAGE.jpg',
-                'lava-stone': 'LAVA STONE MASSAGE.jpg',
-                'shiatsu-dry': 'Shiatsu_Massage.jpg',
-                'ventosa': 'VENTOSA WITH MASSAGE.jpg'
-            };
-
-            const imagePath = `{{ asset('images') }}/${imageMap[serviceType]}`;
             const title = this.querySelector('p').innerText;
+            const imageSrc = this.querySelector('img').src; // Get the image source
+            const price = getPrice(serviceType);
 
-            // Update the details section
-            document.querySelector('.service-image').src = imagePath;
-            document.querySelector('.service-image').alt = title;
-            document.querySelector('.service-title').innerText = title;
-            document.querySelector('.service-description').innerText = getDescription(serviceType);
-            document.querySelector('.service-price').innerText = getPrice(serviceType);
+            const index = selectedServices.findIndex(s => s.type === serviceType);
+            if (index === -1) {
+                // Add service
+                selectedServices.push({
+                    type: serviceType,
+                    title: title,
+                    price: price,
+                    image: imageSrc
+                });
+                lastSelectedService = title; // Update latest selected service
+                lastSelectedImage = imageSrc; // Update latest selected image
+                this.classList.add('selected');
+            } else {
+                // Remove service
+                selectedServices.splice(index, 1);
+                this.classList.remove('selected');
 
-            // Update hidden inputs with the selected service data
-            document.getElementById('hiddenServiceTitle').value = title;
-            document.getElementById('hiddenServicePrice').value = getPrice(serviceType);
+                // If the removed service was the last selected one, update to the previous one
+                if (lastSelectedService === title) {
+                    lastSelectedService = selectedServices.length > 0 ? selectedServices[selectedServices.length - 1].title : '';
+                    lastSelectedImage = selectedServices.length > 0 ? selectedServices[selectedServices.length - 1].image : '';
+                }
+            }
 
-            console.log(`Selected Image Path: ${imagePath}`); // Debug
+            updateSelectedServices();
         });
     });
 
-    // Function to return description based on service type
-    function getDescription(serviceType) {
-        const descriptions = {
-            'deep-tissue': 'Deep tissue massage relieves pain, reduces tension, improves posture, and boosts relaxation, circulation, and recovery.',
-            'body-scrub': 'Body scrub exfoliates the skin, removes dead cells, and leaves the skin feeling fresh and rejuvenated.',
-            'aromatherapy': 'Aromatherapy uses essential oils to relax, reduce stress, and improve mood.',
-            'body-scrub-whole': 'A full-body scrub combined with a relaxing massage to rejuvenate both body and mind.',
-            'foot-reflex': 'Foot reflexology helps to improve circulation, relieve tension, and promote overall well-being.',
-            'foot-scrub': 'A soothing foot scrub combined with a relaxing massage to revitalize tired feet.',
-            'head-ear': 'A calming head and ear massage combined with ear candling for relaxation and mental clarity.',
-            'kids-relaxing': 'A gentle massage designed to relax and calm children, promoting well-being.',
-            'lava-stone': 'A therapeutic lava stone massage that helps reduce muscle tension and stress.',
-            'shiatsu-dry': 'Shiatsu dry massage uses pressure points to relax the body and relieve tension.',
-            'ventosa': 'Ventosa is a suction therapy combined with a massage to improve circulation and detoxify the body.'
-        };
-        return descriptions[serviceType] || 'Service description not available';
+    function updateSelectedServices() {
+    // Get all selected service titles
+    const selectedTitles = selectedServices.map(service => service.title);
+
+    // Store the selected services as a proper JSON array in the hidden input
+    document.getElementById('hiddenServiceTitle').value = JSON.stringify(selectedTitles);
+
+    // Display the selected services correctly in the UI
+    const serviceListContainer = document.querySelector('.service-title');
+    serviceListContainer.innerHTML = ''; // Clear previous list
+
+    if (selectedTitles.length > 0) {
+        selectedTitles.forEach(title => {
+            const listItem = document.createElement('div');
+            listItem.innerHTML = `• ${title}`;
+            serviceListContainer.appendChild(listItem);
+        });
+    } else {
+        serviceListContainer.innerText = "No service selected";
     }
 
-    // Function to return price based on service type
+    // Update the service image to the latest selected one
+    document.querySelector('.service-image').src = lastSelectedImage || "{{ asset('images/default.jpg') }}";
+
+    // Calculate total price for all selected services
+    let totalPrice = selectedServices.reduce((sum, service) => sum + service.price, 0);
+    
+    // Get the number of people
+    const peopleCount = parseInt(document.getElementById('peopleCount').value, 10) || 1;
+
+    // Multiply total price by number of people
+    const finalTotal = totalPrice * peopleCount;
+
+    // Set final price in hidden input field
+    document.getElementById('hiddenServicePrice').value = finalTotal.toFixed(2);
+
+    // Update UI with the total price
+    document.querySelector('.service-price').innerText = finalTotal > 0 ? `₱${finalTotal.toFixed(2)}` : '₱0.00';
+}
+
+
+    function updateQuantity(change) {
+        const input = document.getElementById('peopleCount');
+        let currentValue = parseInt(input.value, 10) || 1;
+        currentValue += change;
+        if (currentValue < 1) currentValue = 1; // Ensure quantity is at least 1
+        input.value = currentValue;
+
+        // Recalculate total price after changing people count
+        updateSelectedServices();
+    }
+
     function getPrice(serviceType) {
         const prices = {
             'deep-tissue': 1980.00,
@@ -509,5 +528,10 @@
         };
         return prices[serviceType] || 0.00;
     }
+
+    // Ensure price updates when quantity is changed manually in input field
+    document.getElementById('peopleCount').addEventListener('input', () => {
+        updateSelectedServices();
+    });
 </script>
 @endsection

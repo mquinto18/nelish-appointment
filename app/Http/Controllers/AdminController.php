@@ -6,24 +6,28 @@ use App\Models\Appointment;
 use App\Models\Therapist;
 use App\Models\TherapistDtr;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class AdminController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         // Fetch approved admins from the database
         $admins = User::where('role', 'admin')->get();
-    
+
         // Fetch pending admins from the session
         $pendingAdmins = session()->get('pending_admins', []);
-    
+
         return view('admin', compact('admins', 'pendingAdmins'));
     }
 
-    public function approveAdmin($email) {
+    public function approveAdmin($email)
+    {
         $pendingAdmins = session()->get('pending_admins', []);
-    
+
         foreach ($pendingAdmins as $index => $admin) {
             if ($admin['email'] === $email) {
                 // Save admin to the database
@@ -36,46 +40,49 @@ class AdminController extends Controller
                     'password' => Hash::make($admin['password']), // Ensure password is hashed
                     'role' => 'admin',
                 ]);
-    
+
                 // Remove from pending session
                 unset($pendingAdmins[$index]);
                 session()->put('pending_admins', array_values($pendingAdmins));
-    
+
                 return redirect()->route('admin.home')->with('success', 'Admin approved successfully.');
             }
         }
-    
+
         return redirect()->route('admin.home')->with('error', 'Admin not found.');
     }
 
-    public function rejectAdmin($email) {
+    public function rejectAdmin($email)
+    {
         // Retrieve pending admins from session
         $pendingAdmins = session()->get('pending_admins', []);
-    
+
         // Remove the rejected admin
         $updatedAdmins = array_filter($pendingAdmins, function ($admin) use ($email) {
             return $admin['email'] !== $email;
         });
-    
+
         // Update the session
         session()->put('pending_admins', array_values($updatedAdmins));
-    
+
         return redirect()->back()->with('error', 'Admin request rejected.');
     }
 
-    public function clientTherapist(){
+    public function clientTherapist()
+    {
         $clients = User::where('role', 'user')->get();
-        $therapists = Therapist::all();
-       
+        $therapists = User::where('role', 'manager')->get();
+
         return view('adminComponents.clientTherapistData', compact('clients', 'therapists'));
     }
 
-    public function viewAppointment() {
+    public function viewAppointment()
+    {
         $appointments = Appointment::paginate(7); // Limit to 2 rows per page
         return view('adminComponents.listAppointment', compact('appointments'));
     }
-    
-    
+
+
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -86,16 +93,18 @@ class AdminController extends Controller
         $appointment->status = $request->status;
         $appointment->save();
 
-        
+
         return back()->with('success', 'Appointment status updated successfully.');
     }
 
-    public function appointmentEdit($id) {
+    public function appointmentEdit($id)
+    {
         $appointment = Appointment::findOrFail($id); // Fetch appointment by ID
         return view('adminComponents.appointmentEdit', compact('appointment'));
     }
 
-    public function appointmentUpdate(Request $request, $id) {
+    public function appointmentUpdate(Request $request, $id)
+    {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -116,44 +125,56 @@ class AdminController extends Controller
     }
 
     public function destroy($id)
-{
-    $appointment = Appointment::find($id);
+    {
+        $appointment = Appointment::find($id);
 
-    if (!$appointment) {
-        return redirect()->back()->with('error', 'Appointment not found.');
+        if (!$appointment) {
+            return redirect()->back()->with('error', 'Appointment not found.');
+        }
+
+        $appointment->delete();
+        notify()->success('Appointment deleted successfully');
+        return redirect()->back()->with('success', 'Appointment deleted successfully.');
     }
 
-    $appointment->delete();
-    notify()->success('Appointment deleted successfully');
-    return redirect()->back()->with('success', 'Appointment deleted successfully.');
-}
+    public function therapistSched()
+    {
+        // Fetch managers
+        $managers = User::where('role', 'manager')->get();
 
-public function therapistSched()
-{
-    // Fetch managers
-    $managers = User::where('role', 'manager')->get();
+        // Fetch appointments grouped by therapist
+        $appointments = Appointment::whereIn('therapist', $managers->pluck('first_name'))->get();
 
-    // Fetch appointments grouped by therapist
-    $appointments = Appointment::whereIn('therapist', $managers->pluck('first_name'))->get();
+        return view('adminComponents.therapistSched', compact('managers', 'appointments'));
+    }
 
-    return view('adminComponents.therapistSched', compact('managers', 'appointments'));
-}
-public function dtrView($therapist, $weekOffset = 0)
+
+public function dtrView(Request $request, $therapist, $weekOffset = 0) 
 {
     $weekOffset = (int) $weekOffset; // Ensure it's an integer
+    $month = $request->query('month'); // Get month from request query
 
-    $startOfWeek = \Carbon\Carbon::now()->startOfWeek()->addWeeks($weekOffset);
+    $selectedMonth = $month ? Carbon::parse("1 $month")->month : null; // Convert month name to number
+
+    $startOfWeek = Carbon::now()->startOfWeek()->addWeeks($weekOffset);
     $endOfWeek = $startOfWeek->copy()->endOfWeek();
 
-    // Fetch DTR records for the selected week
+    // Fetch DTR records filtered by selected month (if selected)
     $dtrRecords = TherapistDtr::where('name', $therapist)
+        ->when($selectedMonth, function ($query) use ($selectedMonth) {
+            return $query->whereMonth('date', $selectedMonth);
+        })
         ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
         ->get();
 
-    // Pass startOfWeek and endOfWeek to the view
-    return view('adminComponents.adminDtrView', compact('dtrRecords', 'therapist', 'weekOffset', 'startOfWeek', 'endOfWeek'));
+    return view('adminComponents.adminDtrView', compact('dtrRecords', 'therapist', 'weekOffset', 'startOfWeek', 'endOfWeek', 'selectedMonth'));
 }
 
+public function systemuser(){
 
-    
+    $users = User::orderBy('created_at', 'desc')->paginate(10); 
+
+    return view('adminComponents.systemUser', compact('users'));
+}
+
 }

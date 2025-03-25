@@ -29,7 +29,7 @@
             </a>
         </div>
 
-        <div class="p-5 lg:p-10 max-w-[1600px] mx-auto ">
+        <div class="p-5 lg:p-10 max-w-[1600px] mx-auto " id="about-section">
             <div class="mb-[30px] text-black text-center">
                 <h1 class="font-bold text-[20px] sm:text-2xl md:text-3xl lg:text-3xl">THE NELISH SERENITY SPA</h1>
                 <p class="italic text-[20px]"> At Nelish Serenity Spa, we are dedicated to offering you a serene escape from the demands of everyday life,
@@ -38,7 +38,7 @@
                     <!-- First Image -->
                     <div class="col-md-4 position-relative">
                         <div class="card">
-                            <img src="{{ asset('images/login_background.jfif') }}" alt="Jacuzzi" class="card-img rounded">
+                            <img src="{{ asset('images/spa4.png') }}" alt="Jacuzzi" class="card-img rounded">
                             <div class="card-img-overlay d-flex align-items-end justify-content-center bg-[#064335] bg-opacity-50 text-white opacity-0 hover-overlay">
                                 <h5 class="fw-bold text-uppercase">Jacuzzi</h5>
                             </div>
@@ -48,7 +48,7 @@
                     <!-- Second Image -->
                     <div class="col-md-4 position-relative">
                         <div class="card">
-                            <img src="{{ asset('images/login_background.jfif') }}" alt="Steam" class="card-img rounded">
+                            <img src="{{ asset('images/spa5.png') }}" alt="Steam" class="card-img rounded">
                             <div class="card-img-overlay d-flex align-items-end justify-content-center bg-[#064335] bg-opacity-50 text-white opacity-0 hover-overlay">
                                 <h5 class="fw-bold text-uppercase">Steam</h5>
                             </div>
@@ -58,7 +58,7 @@
                     <!-- Third Image -->
                     <div class="col-md-4 position-relative">
                         <div class="card">
-                            <img src="{{ asset('images/login_background.jfif') }}" alt="Sauna" class="card-img rounded">
+                            <img src="{{ asset('images/spa6.png') }}" alt="Sauna" class="card-img rounded">
                             <div class="card-img-overlay d-flex align-items-end justify-content-center bg-[#064335] bg-opacity-50 text-white opacity-0 hover-overlay">
                                 <h5 class="fw-bold text-uppercase">Sauna</h5>
                             </div>
@@ -76,8 +76,7 @@
                 <div class="flex justify-center items-center gap-5">
                     <!-- Card 1 -->
                     <div>
-                        <img src="{{ asset('images/login_background.jfif') }}" alt="Sauna" class="card-img rounded">
-
+                        <img src="{{ asset('images/spa1.png') }}" alt="Sauna" class="card-img rounded">
                     </div>
                     <div class="flex flex-col gap-8">
                         <h1 class="font-semibold text-[39px]">Conforming to high
@@ -89,7 +88,7 @@
             </div>
         </div>
 
-        <div class="p-5 lg:p-10 max-w-[1600px] mx-auto">
+        <div class="p-5 lg:p-10 max-w-[1600px] mx-auto" id="services-section">
             <h1 class="font-bold text-[20px] sm:text-2xl md:text-3xl lg:text-3xl text-black text-center">Our Services</h1>
 
             <div class="grid grid-cols-2 gap-6 mt-6">
@@ -147,7 +146,7 @@
 
 
 
-        <div class="bg-[#074E45]">
+        <div class="bg-[#074E45]" id="contact-section">
             <div class="max-w-[1600px] mx-auto p-5">
                 <div class="flex justify-between items-center">
                     <div class="w-[350px]">
@@ -165,9 +164,9 @@
                         <h1 class="text-[20px] mb-4">Navigate</h1>
 
                         <div class="flex flex-col gap-3">
-                            <a href="" class="no-underline text-white">Home</a>
-                            <a href="" class="no-underline text-white">About</a>
-                            <a href="" class="no-underline text-white">Services</a>
+                            <a href="{{ url('/') }}" class="no-underline text-white">Home</a>
+                            <a href="{{ url('/#about-section') }}" class="no-underline text-white">About</a>
+                            <a href="{{ url('/#services-section') }}" class="no-underline text-white">Services</a>
                         </div>
                     </div>
 

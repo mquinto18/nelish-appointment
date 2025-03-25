@@ -53,7 +53,7 @@
                                 <i class="fa-solid fa-circle-user text-[30px]"></i>
                             </div>
                             <div class="text-[15px]">
-                                {{ $therapist->name }}
+                                {{ $therapist->first_name }} {{ $therapist->last_name }}
                             </div>
                             <button class="toggleButton bg-white py-1 px-4 text-black rounded-md">View</button>
                         </div>

@@ -69,18 +69,24 @@
             <form action="{{ route('appointment.storeDate') }}" method="POST" class="bg-[#F5F5DC] p-4 rounded-lg">
                 @csrf
                 <h1 class="text-[25px]">Booking Summary</h1>
-                
+
                 @if(!empty($bookingData))
-                    <div class="bg-[#DADAAB] p-2 my-2">
-                        Service: {{ implode(', ', $bookingData['services']) }}<br>
-                        Duration: {{ $bookingData['duration'] }} Minutes<br>
-                        Quantity: {{ $bookingData['quantity'] }} Person(s)<br>
-                        Total Amount: {{ number_format($bookingData['amount'], 2) }} Pesos<br>
-                    </div>
+                <div class="bg-[#DADAAB] p-2 my-2">
+                    <p class="font-medium">Selected Services:</p>
+                    <ul class="list-none pl-2">
+                        @foreach($bookingData['services'] as $service)
+                        <li>• {{ $service }}</li>
+                        @endforeach
+                    </ul>
+                    <p>Duration: {{ $bookingData['duration'] }} Minutes</p>
+                    <p>Quantity: {{ $bookingData['quantity'] }} Person(s)</p>
+                    <p>Total Amount: {{ number_format($bookingData['amount'], 2) }} Pesos</p>
+                </div>
                 @else
-                    <p>No booking data available.</p>
+                <p>No booking data available.</p>
                 @endif
-                
+
+
                 <input type="hidden" name="selected_date" id="selected_date">
                 <button type="submit" class="bg-[#FF9800] no-underline text-white px-4 py-2 block w-full text-center rounded hover:bg-blue-600 transition duration-300">
                     Submit Date
@@ -95,7 +101,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         var selectedDateInput = document.getElementById('selected_date');
-        
+
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             selectable: true,

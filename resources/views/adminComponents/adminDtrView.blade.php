@@ -12,13 +12,20 @@
     <div class="p-3">
         <h1 class="text-[30px] text-white">Therapist daily time record</h1>
     </div>
-    <div class="bg-white p-4 rounded-lg">
-        <div class="flex justify-between gap-2 mb-4">
-            <div class="text-center mb-4">
-                <h2 class="text-xl font-bold text-gray-700">
-                    {{ $startOfWeek->format('F j') }} - {{ $endOfWeek->format('j, Y') }}
-                </h2>
-            </div>
+    <div class="bg-white p-4 rounded-lg ">
+        <div class="flex justify-between">
+            <form method="GET" action="{{ route('dtr.view', ['therapist' => $therapist]) }}">
+                <label for="month" class="font-bold">Filter by Month:</label>
+                <select name="month" id="month" class="border p-2 rounded">
+                    <option value="">Select a month</option>
+                    @foreach(['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] as $m)
+                    <option value="{{ $m }}" {{ $selectedMonth == \Carbon\Carbon::parse("1 $m")->month ? 'selected' : '' }}>
+                        {{ $m }}
+                    </option>
+                    @endforeach
+                </select>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Filter</button>
+            </form>
             <!-- Previous Week Button -->
             <div class="flex justify-center items-center gap-3">
                 <a href="{{ route('dtr.view', ['therapist' => $therapist, 'weekOffset' => $weekOffset - 1]) }}"
@@ -32,6 +39,17 @@
                     Next Week
                 </a>
             </div>
+        </div>
+
+        <div class=" gap-2 my-4">
+            <div class="text-center mb-4">
+                <h2 class="text-xl font-bold text-gray-700">
+                    {{ $startOfWeek->format('F j') }} - {{ $endOfWeek->format('j, Y') }}
+                </h2>
+            </div>
+
+
+
         </div>
         <table class="w-full border-collapse border border-gray-300">
             <thead class="bg-gray-200">
@@ -78,7 +96,6 @@
                 </tr>
                 @endforeach
             </tbody>
-
         </table>
 
 

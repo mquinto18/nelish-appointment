@@ -44,6 +44,10 @@ return [
         'client_id' => env('FB_CLIENT_ID'),
         'client_secret' => env('FB_CLIENT_SECRET'),
         'redirect' => env('FB_CALLBACK_REDIRECTS'),
-    ]
+    ],
+    'paymongo' => [
+        'secret_key' => env('PAYMONGO_SECRET_KEY'),
+        'public_key' => env('PAYMONGO_PUBLIC_KEY'),
+    ],
 
 ];

@@ -117,6 +117,7 @@ class AuthController extends Controller
         'email' => 'required|string|email|max:255|unique:users',
         'birth_date' => 'required|date',
         'mobile_number' => 'required|digits:10',
+        'gender' => 'required|in:male,female,other',
         'password' => 'required|string|min:8|confirmed',
         'role' => 'required|in:admin,user,manager',
     ]);
@@ -138,6 +139,7 @@ class AuthController extends Controller
         'email' => $validatedData['email'],
         'birth_date' => $validatedData['birth_date'],
         'mobile_number' => $validatedData['mobile_number'],
+        'gender' => $validatedData['gender'],
         'password' => Hash::make($validatedData['password']),
         'role' => $validatedData['role'],
     ]);
