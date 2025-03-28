@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -54,5 +55,13 @@ class AccountController extends Controller
         ]);
         notify()->success('Password updated successfully!');
         return redirect()->back()->with('success', 'Password changed successfully!');
+    }
+
+    public function bookedAppointment()
+    {
+        // Retrieve only appointments of the logged-in user with pagination
+        $appointments = Appointment::where('user_id', Auth::id())->paginate(10); // 10 items per page
+        
+        return view('appointment.bookedAppointment', compact('appointments'));
     }
 }

@@ -92,11 +92,12 @@
                             <form action="{{ route('update.appointment.status', $appointment->id) }}" method="POST">
                                 @csrf
                                 <select name="status" onchange="this.form.submit()"
-                                    class="border p-1 rounded w-full 
-    {{ $appointment->status == 'Pending' ? 'bg-orange-400' : ($appointment->status == 'Approved' ? 'bg-green-400' : 'bg-red-400') }} text-white">
+                                    class="border p-1 rounded w-full {{ $appointment->status == 'Pending' ? 'bg-orange-400' : ($appointment->status == 'Approved' ? 'bg-green-400' : ($appointment->status == 'Completed' ? 'bg-blue-400' : 'bg-red-400')) }}
+ text-white">
                                     <option value="Pending" {{ $appointment->status == 'Pending' ? 'selected' : '' }}>Pending</option>
                                     <option value="Approved" {{ $appointment->status == 'Approved' ? 'selected' : '' }}>Approved</option>
                                     <option value="Rejected" {{ $appointment->status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                                    <option value="Completed" {{ $appointment->status == 'Completed' ? 'selected' : '' }}>Completed</option>
                                 </select>
                             </form>
                         </td>

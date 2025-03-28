@@ -66,12 +66,14 @@
                 <div id="calendar"></div>
             </div>
 
-            <form action="{{ route('appointment.storeDate') }}" method="POST" class="bg-[#F5F5DC] p-4 rounded-lg">
+            <form action="{{ route('appointment.storeDate') }}" method="POST" class="bg-[#FFFFDB] my-10 mx-10 w-[500px] rounded-md flex flex-col justify-between min-h-[400px]">
                 @csrf
-                <h1 class="text-[25px]">Booking Summary</h1>
+                <div class="text-black border-b-2 py-6 border-black">
+                    <h1 class="text-center text-[30px]">Booking Summary</h1>
+                </div>
 
                 @if(!empty($bookingData))
-                <div class="bg-[#DADAAB] p-2 my-2">
+                <div class="p-4 my-2">
                     <p class="font-medium">Selected Services:</p>
                     <ul class="list-none pl-2">
                         @foreach($bookingData['services'] as $service)
@@ -88,9 +90,11 @@
 
 
                 <input type="hidden" name="selected_date" id="selected_date">
-                <button type="submit" class="bg-[#FF9800] no-underline text-white px-4 py-2 block w-full text-center rounded hover:bg-blue-600 transition duration-300">
-                    Submit Date
-                </button>
+                <div class="p-4 border-t border-black text-center">
+                    <button type="submit" class="bg-yellow-400 px-6 py-2 rounded-md">
+                        Continue
+                    </button>
+                </div>
             </form>
         </div>
     </div>

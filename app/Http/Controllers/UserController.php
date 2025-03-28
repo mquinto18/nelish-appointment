@@ -25,7 +25,7 @@ class UserController extends Controller
 
     public function storeServices(Request $request)
     {
-     
+        
         try {
             // Validate the incoming request data
             $validated = $request->validate([

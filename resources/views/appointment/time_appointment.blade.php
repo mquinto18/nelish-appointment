@@ -35,68 +35,100 @@
         <input type="hidden" name="selected_time" id="selected_time">
         <input type="hidden" name="selected_therapist" id="selected_therapist">
 
-        <div class="flex gap-10 justify-center p-6">
-            <!-- Time Selection -->
-            <div class="bg-[#FFFFDB] p-4 rounded-md">
-                <p class="font-bold text-[20px]">Select Time</p>
-                <table class="w-[500px] border-collapse">
-                    <thead>
-                        <tr>
-                            <th class="border px-4 py-2">Time</th>
-                            <th class="border px-4 py-2">Choose</th>
-                        </tr>
-                    </thead>
-                    <tbody id="time-slots">
-                        @php
-                        $timeSlots = ($duration == 60) ?
-                        ['1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'] :
-                        ['1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM',
-                        '4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM',
-                        '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM'];
-                        @endphp
+        <div class="flex justify-center items-center">
+            <div class="flex flex-col gap-10 justify-center p-6">
+                <!-- Time Selection -->
+                <div class="bg-[#FFFFDB] p-4 rounded-md">
+                    <p class="font-bold text-[20px]">Select Time</p>
+                    <table class="w-[500px] border-collapse">
+                        <tbody id="time-slots ">
+                            @php
+                            $timeSlots = ($duration == 60) ?
+                            ['1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'] :
+                            ['1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM',
+                            '4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM',
+                            '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM'];
+                            @endphp
 
-                        @foreach ($timeSlots as $time)
-                        @php
-                        $isBooked = in_array($time, $bookedTimes);
-                        @endphp
+                            @foreach ($timeSlots as $index => $time)
+                            @php
+                            $isBooked = in_array($time, $bookedTimes);
+                            @endphp
+
+                            {{-- Open a new row every 3 items --}}
+                            @if ($index % 3 == 0)
+                            <tr>
+                                @endif
+
+                                <td class="border px-4 py-3 text-center {{ $isBooked ? 'bg-[#F54C4C]' : 'cursor-pointer time-option' }}"
+                                    onclick="{{ $isBooked ? '' : "selectTime(this, '$time')" }}">
+                                    {{ $time }}
+                                </td>
+
+                                {{-- Close row every 3 items or at the last item --}}
+                                @if ($index % 3 == 2 || $index == count($timeSlots) - 1)
+                            </tr>
+                            @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Therapist Selection -->
+                <div class="bg-[#FFFFDB] p-4 rounded-md">
+                    <p class="font-bold text-[20px] ">Select Therapist</p>
+                    <table class="w-full border-collapse border border-gray-300 mt-3">
+                        @foreach ($therapists->chunk(2) as $row)
                         <tr>
-                            <td class="border px-4 py-2 text-center {{ $isBooked ? 'bg-[#F54C4C]' : 'cursor-pointer time-option' }}"
-                                onclick="{{ $isBooked ? '' : "selectTime(this, '$time')" }}">
-                                {{ $time }}
+                            @foreach ($row as $therapist)
+                            <td class="border border-gray-300 px-6 py-4 text-center cursor-pointer"
+                                onclick="selectTherapist(this, '{{ $therapist->id }}', '{{ $therapist->first_name }}')">
+                                {{ $therapist->first_name }}
                             </td>
-                            <td class="border px-4 py-2 text-center">
-                                <button type="button" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 select-time-btn"
-                                    onclick="{{ $isBooked ? '' : "selectTime(this, '$time')" }}" {{ $isBooked ? 'disabled' : '' }}>
-                                    {{ $isBooked ? 'Booked' : 'Choose' }}
-                                </button>
-                            </td>
+                            @endforeach
+                            {{-- If the row has only 1 therapist, add an empty cell to balance the layout --}}
+                            @if ($row->count() == 1)
+                            <td class="border border-gray-300 px-6 py-4"></td>
+                            @endif
                         </tr>
                         @endforeach
-                    </tbody>
+                    </table>
+                </div>
 
-                </table>
+                <!-- <div class="text-center mt-6">
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Confirm Appointment</button>
+            </div> -->
             </div>
 
-            <!-- Therapist Selection -->
-            <div class="bg-[#FFFFDB] p-4 rounded-md">
-                <p class="font-bold text-[20px]">Select Therapist</p>
-                <div class="grid grid-cols-3 gap-5">
-                    @foreach ($therapists as $therapist)
-                    <div class="bg-[#074F46] py-5 px-3 flex flex-col rounded-md cursor-pointer therapist-card text-white text-center"
-                        onclick="selectTherapist(this, '{{ $therapist->id }}', '{{ $therapist->first_name }}')">
-                        <i class="fa-solid fa-circle-user text-[90px]"></i>
-                        <p class="font-bold text-[15px] mt-3">{{ $therapist->first_name }}</p>
-                        <p class="text-[13px]">Experience: {{ $therapist->experience }} years</p>
-                        <p class="text-[13px]">Language: {{ $therapist->language }}</p>
-                    </div>
-                    @endforeach
+            <div class="bg-[#FFFFDB] my-20 mx-10 w-[500px] rounded-md flex flex-col justify-between min-h-[400px]">
+                <div class="text-black border-b-2 py-6 border-black">
+                    <h1 class="text-center text-[30px]">Booking Summary</h1>
                 </div>
-                <!-- Submit Button -->
-                <div class="text-center mt-6">
-                    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Confirm Appointment</button>
+
+                @if(!empty($bookingData))
+                <div class="p-4 my-2">
+                    <p class="font-medium">Selected Services:</p>
+                    <ul class="list-none pl-2">
+                        @foreach($bookingData['services'] as $service)
+                        <li>• {{ $service }}</li>
+                        @endforeach
+                    </ul>
+                    <p>Duration: {{ $bookingData['duration'] }} Minutes</p>
+                    <p>Quantity: {{ $bookingData['quantity'] }} Person(s)</p>
+                    <p>Total Amount: {{ number_format($bookingData['amount'], 2) }} Pesos</p>
+                </div>
+                @else
+                <p>No booking data available.</p>
+                @endif
+
+
+                <input type="hidden" name="selected_date" id="selected_date">
+                <div class="p-4 border-t border-black text-center">
+                    <button type="submit" class="bg-yellow-400 px-6 py-2 rounded-md">
+                        Continue
+                    </button>
                 </div>
             </div>
-
         </div>
 
 

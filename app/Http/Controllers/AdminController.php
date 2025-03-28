@@ -7,6 +7,8 @@ use App\Models\Therapist;
 use App\Models\TherapistDtr;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -86,7 +88,7 @@ class AdminController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:Pending,Approved,Rejected'
+            'status' => 'required|in:Pending,Approved,Rejected,Completed'
         ]);
 
         $appointment = Appointment::findOrFail($id);
@@ -170,11 +172,54 @@ public function dtrView(Request $request, $therapist, $weekOffset = 0)
     return view('adminComponents.adminDtrView', compact('dtrRecords', 'therapist', 'weekOffset', 'startOfWeek', 'endOfWeek', 'selectedMonth'));
 }
 
-public function systemuser(){
+public function systemuser(Request $request)
+{
+    $search = $request->input('search');
 
-    $users = User::orderBy('created_at', 'desc')->paginate(10); 
+    // Query users based on search input
+    $users = User::when($search, function ($query, $search) {
+            return $query->where('first_name', 'like', "%{$search}%")
+                         ->orWhere('last_name', 'like', "%{$search}%")
+                         ->orWhere('email', 'like', "%{$search}%")
+                         ->orWhere('role', 'like', "%{$search}%");
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
 
-    return view('adminComponents.systemUser', compact('users'));
+    return view('adminComponents.systemUser', compact('users', 'search'));
 }
 
+public function saveUser(Request $request)
+{
+    // Validate input data
+    $validator = Validator::make($request->all(), [
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|string|min:6',
+        'birthday' => 'required|date',
+        'mobile_number' => 'required|string|max:15',
+        'gender' => 'required|in:male,female,other',
+        'role' => 'required|in:user,admin,therapist',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()->withErrors($validator)->withInput();
+    }
+
+    // Create and save user
+    User::create([
+        'first_name' => $request->first_name,
+        'last_name' => $request->last_name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password), // Encrypt password
+        'birth_date' => $request->birthday,
+        'mobile_number' => $request->mobile_number,
+        'gender' => $request->gender,
+        'role' => $request->role,
+    ]);
+
+    notify()->success('Employee added successfully!');
+    return redirect()->back()->with('success', 'User added successfully!');
+}
 }

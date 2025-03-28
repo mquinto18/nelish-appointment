@@ -16,8 +16,17 @@
 
     <div class="p-3">
         <div class="d-flex justify-content-end mb-4">
+
+        <!-- Search Form -->
+         <form action="{{ route('systemUser') }}" method="GET" class="d-flex mx-10">
+            <input type="text" name="search" class="form-control me-2" 
+                placeholder="Search users..." value="{{ request('search') }}">
+            <button type="submit" class="btn btn-primary me-2"><i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i></button>
+            <a href="{{ route('systemUser') }}" class="btn btn-secondary"><i class="fa-solid fa-rotate-right" style="color: #ffffff;"></i></a>
+        </form>
             <!-- Button to trigger modal -->
             <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+              <i class="fa-solid fa-plus" style="color: #096156;"></i>
                 Add Employee
             </button>
         </div>
@@ -63,9 +72,8 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="addEmployeeModalLabel">Add Employee</h5>
             </div>
-
             <div class="modal-body">
-                <form action="" method="POST">
+                <form action="{{ route('save.user') }}" method="POST">
                     @csrf
                     <div class="grid grid-cols-2 gap-4">
                         <div class="mb-3">
@@ -109,9 +117,9 @@
                         <div class="mb-3">
                             <label class="form-label">Gender</label>
                             <select name="role" class="form-select" required>
-                                <option value="User">User</option>
-                                <option value="Admin">Admin</option>
-                                <option value="Therapist">Therapist</option>
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                                <option value="therapist">Therapist</option>
                             </select>
                         </div>
                     </div>

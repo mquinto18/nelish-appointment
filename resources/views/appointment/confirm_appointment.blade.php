@@ -14,6 +14,7 @@
     <div>
         <h1 class="text-white text-center">Confirmation</h1>
 
+        
         <div class="flex justify-center items-center gap-5">
             <div class="bg-[#FFFFDB] p-4 w-[500px] rounded-md">
                 <p class="font-bold text-[20px]">Your Booking Summary</p>

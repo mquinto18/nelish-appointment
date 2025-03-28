@@ -312,7 +312,7 @@
 <div>
     @include('appointment.navigation')
     <div class="relative w-full h-[500px] sm:h-[600px] md:h-[700px] text-white">
-        <main>
+        <main class="flex mx-10 gap-5">
             <aside class="sidebar">
                 <h2>Select Services</h2>
 
@@ -366,52 +366,54 @@
 
             </aside>
 
-            <form action="{{ route('services.save') }}" method="POST" class="service-booking-form">
+            <form action="{{ route('services.save') }}" method="POST" class="service-booking-form" onsubmit="updateSelectedServices()">
                 @csrf
-                <section class="details-container">
-                    <section class="details">
-                    <img src="{{ asset('images/default.jpg') }}" alt="" class="service-image">
-                        <h1 class="service-title">{{ $serviceTitle ?? '' }}</h1>
-                        <p class="service-description"></p>
-                        <p class="service-price">{{ $servicePrice ?? '' }}</p>
+                <div class="bg-[#FFFFDB] my-10 mx-10 w-[500px] rounded-md flex flex-col justify-between min-h-[400px]">
+                    <div class="text-black border-b-2 py-6 border-black">
+                        <h1 class="text-center text-[30px]">Booking Summary</h1>
+                    </div>
 
-                        <!-- Choose Duration -->
-                        <div class="booking-options">
-                            <h3>Choose Duration:</h3>
+                    <div class="p-10 text-black leading-3 flex-grow">
+                        <div class="selected-services">
+                            <!-- Selected services will be listed here -->
+                            <p id="noBookingMessage" class="text-center text-gray-500">No booking yet</p>
+                        </div>
+
+                        <div class="mt-4">
+                            <p class="font-medium">Choose Duration:</p>
                             <label>
                                 <input type="radio" name="duration" value="60" checked> 60 minutes
                             </label>
                             <label>
                                 <input type="radio" name="duration" value="90"> 90 minutes
                             </label>
-                            <p class="note">
-                                Note: Usage of facilities and preparation time for the next guest is included in the time blocking.
-                            </p>
+                        </div>
 
-                            <!-- How Many People -->
-                            <h3>How Many People?</h3>
-                            <div class="quantity-selector">
-                                <button type="button" class="decrease" onclick="updateQuantity(-1)">-</button>
-                                <input type="number" class="quantity text-black" name="people_count" min="1" value="1" id="peopleCount">
-                                <button type="button" class="increase" onclick="updateQuantity(1)">+</button>
+                        <div class="quantity-selector gap-2 mt-4">
+                            <p class="font-medium">How many people?</p>
+                            <div>
+                                <button type="button" class="decrease bg-gray-200 px-2 py-1 rounded" onclick="updateQuantity(-1)">-</button>
+                                <input type="number" class="quantity w-12 text-center text-black border border-gray-300 rounded py-1" name="people_count" min="1" value="1" id="peopleCount">
+                                <button type="button" class="increase bg-gray-200 px-2 py-1 rounded" onclick="updateQuantity(1)">+</button>
                             </div>
                         </div>
 
-                        <!-- Hidden fields to store service title, price, and other data -->
-                        <input type="hidden" name="service_title" id="hiddenServiceTitle">
-                        <input type="hidden" name="service_price" id="hiddenServicePrice">
-                        <input type="hidden" name="selected_services" id="selectedServicesInput" value="">
+                        <p class="text-black font-bold mt-4">Total Price: <span class="service-price">₱0.00</span></p>
+                    </div>
 
-                        <button type="submit" class="next-btn">Next</button>
-                    </section>
-                </section>
+                    <!-- Hidden fields to store service title, price, and other data -->
+                    <input type="hidden" name="service_title" id="hiddenServiceTitle">
+                    <input type="hidden" name="service_price" id="hiddenServicePrice">
+                    <input type="hidden" name="selected_services" id="selectedServicesInput" value="">
+
+                    <!-- Submit button placed at the bottom -->
+                    <div class="p-4 border-t border-black text-center">
+                        <button type="submit" class="next-btn text-black bg-yellow-400 px-6 py-2 rounded-md">Continue</button>
+                    </div>
+                </div>
             </form>
 
-
         </main>
-
-
-
     </div>
 </div>
 <style>
@@ -461,44 +463,38 @@
     });
 
     function updateSelectedServices() {
-    // Get all selected service titles
-    const selectedTitles = selectedServices.map(service => service.title);
+        const selectedContainer = document.querySelector('.selected-services');
+        selectedContainer.innerHTML = ''; // Clear previous content
 
-    // Store the selected services as a proper JSON array in the hidden input
-    document.getElementById('hiddenServiceTitle').value = JSON.stringify(selectedTitles);
+        let totalPrice = 0;
+        let selectedTitles = [];
 
-    // Display the selected services correctly in the UI
-    const serviceListContainer = document.querySelector('.service-title');
-    serviceListContainer.innerHTML = ''; // Clear previous list
+        selectedServices.forEach(service => {
+            const serviceItem = document.createElement('div');
+            serviceItem.classList.add('border-b', 'py-2');
 
-    if (selectedTitles.length > 0) {
-        selectedTitles.forEach(title => {
-            const listItem = document.createElement('div');
-            listItem.innerHTML = `• ${title}`;
-            serviceListContainer.appendChild(listItem);
+            serviceItem.innerHTML = `
+            <p class="text-black font-bold text-[15px]">${service.title}</p>
+            <p class="text-black text-[15px]">₱${service.price.toFixed(2)}</p>
+        `;
+            selectedContainer.appendChild(serviceItem);
+
+            totalPrice += service.price;
+            selectedTitles.push(service.title);
         });
-    } else {
-        serviceListContainer.innerText = "No service selected";
+
+        // Multiply total price by number of people
+        const peopleCount = parseInt(document.getElementById('peopleCount').value, 10) || 1;
+        const finalTotal = totalPrice * peopleCount;
+        document.querySelector('.service-price').innerText = `₱${finalTotal.toFixed(2)}`;
+
+        // Update hidden input fields before submission
+        document.getElementById('hiddenServiceTitle').value = JSON.stringify(selectedTitles); // Store services as JSON
+        document.getElementById('hiddenServicePrice').value = finalTotal; // Store total price as number
     }
 
-    // Update the service image to the latest selected one
-    document.querySelector('.service-image').src = lastSelectedImage || "{{ asset('images/default.jpg') }}";
 
-    // Calculate total price for all selected services
-    let totalPrice = selectedServices.reduce((sum, service) => sum + service.price, 0);
-    
-    // Get the number of people
-    const peopleCount = parseInt(document.getElementById('peopleCount').value, 10) || 1;
 
-    // Multiply total price by number of people
-    const finalTotal = totalPrice * peopleCount;
-
-    // Set final price in hidden input field
-    document.getElementById('hiddenServicePrice').value = finalTotal.toFixed(2);
-
-    // Update UI with the total price
-    document.querySelector('.service-price').innerText = finalTotal > 0 ? `₱${finalTotal.toFixed(2)}` : '₱0.00';
-}
 
 
     function updateQuantity(change) {

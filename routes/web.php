@@ -48,6 +48,7 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/home/accountSettings', [UserController::class, 'accountSettings'])->name('account.settings');
     Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
     Route::put('/account/password', [AccountController::class, 'password'])->name('account.password');
+    Route::get('/booked-appointment', [AccountController::class, 'bookedAppointment'])->name('booked.appointments');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -63,7 +64,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/appointment/{id}', [AdminController::class, 'destroy'])->name('appointment.delete');
     Route::get('/dtrView/{therapist}/{weekOffset?}', [AdminController::class, 'dtrView'])->name('dtr.view');
     Route::get('/admin/systemUser', [AdminController::class, 'systemuser'])->name('systemUser');
-
+    Route::post('/admin/saveUser', [AdminController::class, 'saveUser'])->name('save.user');
+    
    
 });
 
