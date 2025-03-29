@@ -517,18 +517,7 @@
                             </div>
 
                             <!-- Role Selection -->
-                            <div class="form-group">
-                                <label for="role">Select Your Role</label>
-                                <select name="role" id="role" required>
-                                    <option value="">Select Role</option>
-                                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                    <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
-                                    <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Therapist</option>
-                                </select>
-                                @error('role')
-                                <span class="text-red-500 text-sm">{{ $message }}</span>
-                                @enderror
-                            </div>
+
                         </div>
 
                         <!-- Terms & Conditions -->

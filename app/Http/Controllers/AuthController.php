@@ -119,20 +119,12 @@ class AuthController extends Controller
         'mobile_number' => 'required|digits:10',
         'gender' => 'required|in:male,female,other',
         'password' => 'required|string|min:8|confirmed',
-        'role' => 'required|in:admin,user,manager',
     ]);
 
-    if ($validatedData['role'] === 'admin') {
-        // Store the admin in session instead of database
-        $pendingAdmins = session()->get('pending_admins', []);
-        $pendingAdmins[] = $validatedData; // Add new admin to array
-        session()->put('pending_admins', $pendingAdmins);
+    // Set the role to 'user' automatically
+    $role = 'user';
 
-        notify()->success('Register successfully wait for the approval process');
-        return redirect()->route('register')->with('success', 'Admin registration is pending approval.');
-    }
-
-    // If not admin, save directly to database
+    // Save the user with 'user' role
     User::create([
         'first_name' => $validatedData['first_name'],
         'last_name' => $validatedData['last_name'],
@@ -141,11 +133,12 @@ class AuthController extends Controller
         'mobile_number' => $validatedData['mobile_number'],
         'gender' => $validatedData['gender'],
         'password' => Hash::make($validatedData['password']),
-        'role' => $validatedData['role'],
+        'role' => $role,  // Always 'user'
     ]);
-   
+
     return redirect()->route('login')->with('success', 'Registration successful.');
 }
+
     public function logout(Request $request)
     {
         Auth::logout();
