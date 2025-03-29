@@ -17,16 +17,16 @@
     <div class="p-3">
         <div class="d-flex justify-content-end mb-4">
 
-        <!-- Search Form -->
-         <form action="{{ route('systemUser') }}" method="GET" class="d-flex mx-10">
-            <input type="text" name="search" class="form-control me-2" 
-                placeholder="Search users..." value="{{ request('search') }}">
-            <button type="submit" class="btn btn-primary me-2"><i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i></button>
-            <a href="{{ route('systemUser') }}" class="btn btn-secondary"><i class="fa-solid fa-rotate-right" style="color: #ffffff;"></i></a>
-        </form>
+            <!-- Search Form -->
+            <form action="{{ route('systemUser') }}" method="GET" class="d-flex mx-10">
+                <input type="text" name="search" class="form-control me-2"
+                    placeholder="Search users..." value="{{ request('search') }}">
+                <button type="submit" class="btn btn-primary me-2"><i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i></button>
+                <a href="{{ route('systemUser') }}" class="btn btn-secondary"><i class="fa-solid fa-rotate-right" style="color: #ffffff;"></i></a>
+            </form>
             <!-- Button to trigger modal -->
             <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
-              <i class="fa-solid fa-plus" style="color: #096156;"></i>
+                <i class="fa-solid fa-plus" style="color: #096156;"></i>
                 Add Employee
             </button>
         </div>
@@ -34,28 +34,55 @@
         <div class="bg-white w-full p-3 rounded-md">
             <table class="table table-bordered">
                 <thead class="table-light">
-                    <tr>
+                    <tr class="text-right">
                         <th>ID</th>
                         <th>First Name</th>
                         <th>Last Name</th>
                         <th>Email</th>
                         <th>Role</th>
                         <th>Created At</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-center">
                     @foreach($users as $user)
                     <tr>
                         <td>{{ $loop->iteration + ($users->currentPage() - 1) * $users->perPage() }}</td>
                         <td>{{ $user->first_name }}</td>
                         <td>{{ $user->last_name }}</td>
                         <td>{{ $user->email }}</td>
-                        <td>{{ $user->role ?? 'N/A' }}</td>
+                        <td>{{ $user->role == 'manager' ? 'Therapist' : ($user->role ?? 'N/A') }}</td>
                         <td>{{ $user->created_at->format('Y-m-d') }}</td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <div class="d-flex justify-content-center gap-3">
+                                <form action="" method="GET">
+                                    <button type="submit" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                </form>
+                                <button type="button" class="text-green-500 hover:text-green-700 view-btn"
+                                    data-bs-toggle="modal" data-bs-target="#appointmentModal"
+                                    data-id="{{ $user->id }}"
+                                    data-name="{{ $user->first_name }} {{ $user->last_name }}"
+                                    data-email="{{ $user->email }}"
+                                    data-role="{{ $user->role }}">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                                <form action="" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-500 hover:text-red-700">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
+
+
         </div>
 
         <!-- Pagination Links -->
@@ -119,7 +146,7 @@
                             <select name="role" class="form-select" required>
                                 <option value="user">User</option>
                                 <option value="admin">Admin</option>
-                                <option value="therapist">Therapist</option>
+                                <option value="manager">Therapist</option>
                             </select>
                         </div>
                     </div>

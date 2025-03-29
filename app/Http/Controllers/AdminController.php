@@ -190,8 +190,8 @@ public function systemuser(Request $request)
 }
 
 public function saveUser(Request $request)
-{
-    // Validate input data
+
+{    // Validate input data
     $validator = Validator::make($request->all(), [
         'first_name' => 'required|string|max:255',
         'last_name' => 'required|string|max:255',
@@ -200,7 +200,7 @@ public function saveUser(Request $request)
         'birthday' => 'required|date',
         'mobile_number' => 'required|string|max:15',
         'gender' => 'required|in:male,female,other',
-        'role' => 'required|in:user,admin,therapist',
+        'role' => 'required|in:user,admin,manager',
     ]);
 
     if ($validator->fails()) {

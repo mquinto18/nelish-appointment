@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Auth;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 class AccountController extends Controller
 {
     // Update Account Details
@@ -63,5 +63,31 @@ class AccountController extends Controller
         $appointments = Appointment::where('user_id', Auth::id())->paginate(10); // 10 items per page
         
         return view('appointment.bookedAppointment', compact('appointments'));
+    }
+
+    public function destroy($id)
+    {
+        $appointment = Appointment::findOrFail($id);
+        $appointment->delete();
+        notify()->success('Appointment deleted successfully!');
+        return redirect()->back()->with('success', 'Appointment deleted successfully!');
+    }
+
+    public function generateReceipt($id)
+    {
+        $appointment = Appointment::findOrFail($id);
+        
+        $services = json_decode($appointment->services, true); // Convert JSON to array
+        $therapist = $appointment->therapist;
+        $date = $appointment->date;
+        $time = $appointment->time;
+        $quantity = $appointment->quantity;
+        $duration = $appointment->duration;
+        $amount = $appointment->amount;
+        $total = $amount * $quantity;
+
+        $pdf = Pdf::loadView('appointment.receipt', compact('appointment', 'services', 'therapist', 'date', 'time', 'quantity', 'duration', 'amount', 'total'));
+
+        return $pdf->stream('receipt.pdf'); // Display in browser
     }
 }

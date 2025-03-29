@@ -314,220 +314,155 @@
     <div class="relative w-full h-[500px] sm:h-[600px] md:h-[700px] text-white">
         <main class="flex mx-10 gap-5">
             <aside class="sidebar">
-                <h2>Select Services</h2>
-
-
-                <div class="services">
-                    <div class="service" data-service="deep-tissue">
-                        <img src="{{ asset('images/DEEP TISSUE MASSAGE.jpg') }}" alt="Deep Tissue Massage">
-                        <p>Deep Tissue Massage</p>
+                <div class="flex justify-between items-center">
+                    <div class="quantity-selector flex gap-2 mt-4">
+                        <h2>How many people?</h2>
+                        <div>
+                            <select id="peopleCount" name="people_count" class="w-16 text-center text-black border border-gray-300 rounded py-1">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="service" data-service="body-scrub">
-                        <img src="{{ asset('images/BODY SCRUB MASSAGE.jpg') }}" alt="Body Scrub">
-                        <p>Body Scrub</p>
-                    </div>
-                    <div class="service" data-service="aromatherapy">
-                        <img src="{{ asset('images/AROMATHERAPY.jfif') }}" alt="Aromatherapy">
-                        <p>Aromatherapy</p>
-                    </div>
-                    <div class="service" data-service="body-scrub-whole">
-                        <img src="{{ asset('images/BODY_SCRUB.jpg') }}" alt="Body Scrub with Whole Body Massage">
-                        <p>Body Scrub with Whole Body Massage</p>
-                    </div>
-                    <div class="service" data-service="foot-reflex">
-                        <img src="{{ asset('images/FOOT REFLEX MASSAGE.jpg') }}" alt="Foot Reflex Massage">
-                        <p>Foot Reflex Massage</p>
-                    </div>
-                    <div class="service" data-service="foot-scrub">
-                        <img src="{{ asset('images/FOOT_MASSAGE.jpeg') }}" alt="Foot Scrub with Massage">
-                        <p>Foot Scrub with Massage</p>
-                    </div>
-                    <div class="service" data-service="head-ear">
-                        <img src="{{ asset('images/HEAD_CANDLING.jpg') }}" alt="Head & Ear Face Massage with Ear Candling">
-                        <p>Head & Ear Face Massage with Ear Candling</p>
-                    </div>
-                    <div class="service" data-service="kids-relaxing">
-                        <img src="{{ asset('images/KIDS_MASSAGE.jpg') }}" alt="Kids Relaxing Massage">
-                        <p>Kids Relaxing Massage</p>
-                    </div>
-                    <div class="service" data-service="lava-stone">
-                        <img src="{{ asset('images/LAVA STONE MASSAGE.jpg') }}" alt="Lava Stone Massage">
-                        <p>Lava Stone Massage</p>
-                    </div>
-                    <div class="service" data-service="shiatsu-dry">
-                        <img src="{{ asset('images/Shiatsu_Massage.jpg') }}" alt="Shiatsu Dry Massage">
-                        <p>Shiatsu Dry Massage</p>
-                    </div>
-                    <div class="service" data-service="ventosa">
-                        <img src="{{ asset('images/VENTOSA WITH MASSAGE.jpg') }}" alt="Ventosa with Massage">
-                        <p>Ventosa with Massage</p>
-                    </div>
+                    <button type="button" id="redoSelection" class="bg-green-500 text-white px-4 py-2 rounded">
+                        Redo Selection
+                    </button>
                 </div>
-
+                <h2>Select Services</h2>
+                <div class="services">
+                    @foreach ([
+                    ['deep-tissue', 'DEEP TISSUE MASSAGE.jpg', 'Deep Tissue Massage'],
+                    ['body-scrub', 'BODY SCRUB MASSAGE.jpg', 'Body Scrub'],
+                    ['aromatherapy', 'AROMATHERAPY.jfif', 'Aromatherapy'],
+                    ['body-scrub-whole', 'BODY_SCRUB.jpg', 'Body Scrub with Whole Body Massage'],
+                    ['foot-reflex', 'FOOT REFLEX MASSAGE.jpg', 'Foot Reflex Massage'],
+                    ['foot-scrub', 'FOOT_MASSAGE.jpeg', 'Foot Scrub with Massage'],
+                    ['head-ear', 'HEAD_CANDLING.jpg', 'Head & Ear Face Massage with Ear Candling'],
+                    ['kids-relaxing', 'KIDS_MASSAGE.jpg', 'Kids Relaxing Massage'],
+                    ['lava-stone', 'LAVA STONE MASSAGE.jpg', 'Lava Stone Massage'],
+                    ['shiatsu-dry', 'Shiatsu_Massage.jpg', 'Shiatsu Dry Massage'],
+                    ['ventosa', 'VENTOSA WITH MASSAGE.jpg', 'Ventosa with Massage']
+                    ] as $service)
+                    <div class="service" data-service="{{ $service[0] }}">
+                        <img src="{{ asset('images/' . $service[1]) }}" alt="{{ $service[2] }}">
+                        <p>{{ $service[2] }}</p>
+                    </div>
+                    @endforeach
+                </div>
             </aside>
-
             <form action="{{ route('services.save') }}" method="POST" class="service-booking-form" onsubmit="updateSelectedServices()">
                 @csrf
                 <div class="bg-[#FFFFDB] my-10 mx-10 w-[500px] rounded-md flex flex-col justify-between min-h-[400px]">
                     <div class="text-black border-b-2 py-6 border-black">
                         <h1 class="text-center text-[30px]">Booking Summary</h1>
                     </div>
-
                     <div class="p-10 text-black leading-3 flex-grow">
                         <div class="selected-services">
-                            <!-- Selected services will be listed here -->
                             <p id="noBookingMessage" class="text-center text-gray-500">No booking yet</p>
                         </div>
-
                         <div class="mt-4">
                             <p class="font-medium">Choose Duration:</p>
-                            <label>
-                                <input type="radio" name="duration" value="60" checked> 60 minutes
-                            </label>
-                            <label>
-                                <input type="radio" name="duration" value="90"> 90 minutes
-                            </label>
+                            <label><input type="radio" name="duration" value="60" checked> 60 minutes</label>
+                            <label><input type="radio" name="duration" value="90"> 90 minutes</label>
                         </div>
-
-                        <div class="quantity-selector gap-2 mt-4">
-                            <p class="font-medium">How many people?</p>
-                            <div>
-                                <button type="button" class="decrease bg-gray-200 px-2 py-1 rounded" onclick="updateQuantity(-1)">-</button>
-                                <input type="number" class="quantity w-12 text-center text-black border border-gray-300 rounded py-1" name="people_count" min="1" value="1" id="peopleCount">
-                                <button type="button" class="increase bg-gray-200 px-2 py-1 rounded" onclick="updateQuantity(1)">+</button>
-                            </div>
-                        </div>
-
                         <p class="text-black font-bold mt-4">Total Price: <span class="service-price">₱0.00</span></p>
                     </div>
-
-                    <!-- Hidden fields to store service title, price, and other data -->
                     <input type="hidden" name="service_title" id="hiddenServiceTitle">
                     <input type="hidden" name="service_price" id="hiddenServicePrice">
-                    <input type="hidden" name="selected_services" id="selectedServicesInput" value="">
-
-                    <!-- Submit button placed at the bottom -->
+                    <input type="hidden" name="people_count" id="peopleCountInput" value="1">
+                    <input type="hidden" name="selected_services" id="selectedServicesInput" value="null">
                     <div class="p-4 border-t border-black text-center">
                         <button type="submit" class="next-btn text-black bg-yellow-400 px-6 py-2 rounded-md">Continue</button>
                     </div>
                 </div>
             </form>
-
         </main>
     </div>
 </div>
 <style>
     .service.selected {
         border: 2px solid #FFD700;
-        /* Highlight selected services */
     }
 </style>
 <script>
-    let selectedServices = [];
-    let lastSelectedService = ''; // Track the latest selected service
-    let lastSelectedImage = ''; // Track the latest selected image
+    document.addEventListener("DOMContentLoaded", function() {
+        let selectedServices = [];
+        const peopleCountSelect = document.getElementById("peopleCount");
+        const selectedContainer = document.querySelector(".selected-services");
+        let maxSelections = parseInt(peopleCountSelect.value, 10);
 
-    document.querySelectorAll('.service').forEach(service => {
-        service.addEventListener('click', function() {
-            const serviceType = this.getAttribute('data-service');
-            const title = this.querySelector('p').innerText;
-            const imageSrc = this.querySelector('img').src; // Get the image source
-            const price = getPrice(serviceType);
+        function updateMaxSelections() {
+            maxSelections = parseInt(peopleCountSelect.value, 10);
+            selectedServices = selectedServices.slice(0, maxSelections);
+            updateSelectedServices();
+        }
 
-            const index = selectedServices.findIndex(s => s.type === serviceType);
-            if (index === -1) {
-                // Add service
-                selectedServices.push({
-                    type: serviceType,
-                    title: title,
-                    price: price,
-                    image: imageSrc
-                });
-                lastSelectedService = title; // Update latest selected service
-                lastSelectedImage = imageSrc; // Update latest selected image
-                this.classList.add('selected');
-            } else {
-                // Remove service
-                selectedServices.splice(index, 1);
-                this.classList.remove('selected');
+        peopleCountSelect.addEventListener("change", updateMaxSelections);
 
-                // If the removed service was the last selected one, update to the previous one
-                if (lastSelectedService === title) {
-                    lastSelectedService = selectedServices.length > 0 ? selectedServices[selectedServices.length - 1].title : '';
-                    lastSelectedImage = selectedServices.length > 0 ? selectedServices[selectedServices.length - 1].image : '';
+        document.querySelectorAll(".service").forEach(service => {
+            service.addEventListener("click", function() {
+                if (selectedServices.length >= maxSelections) {
+                    alert(`You can only select ${maxSelections} services.`);
+                    return;
                 }
-            }
+                const serviceType = this.getAttribute("data-service");
+                const title = this.querySelector("p").innerText;
+                const price = getPrice(serviceType);
+                selectedServices.push({
+                    title,
+                    price
+                });
+                this.classList.add("selected");
+                updateSelectedServices();
+            });
+        });
 
+        function updateSelectedServices() {
+            selectedContainer.innerHTML = "";
+            let totalPrice = 0;
+            let serviceTitles = [];
+            selectedServices.forEach((service, index) => {
+                const serviceItem = document.createElement("div");
+                serviceItem.classList.add("border-b", "py-2");
+                serviceItem.innerHTML = `<p class="text-black font-bold">Person ${index + 1}: ${service.title}</p>
+                                         <p class="text-black">₱${service.price.toFixed(2)}</p>`;
+                selectedContainer.appendChild(serviceItem);
+                totalPrice += service.price;
+                serviceTitles.push(service.title);
+            });
+            document.querySelector(".service-price").innerText = `₱${totalPrice.toFixed(2)}`;
+            document.getElementById("hiddenServiceTitle").value = JSON.stringify(serviceTitles);
+            document.getElementById("hiddenServicePrice").value = totalPrice;
+        }
+
+        function getPrice(serviceType) {
+            const prices = {
+                'deep-tissue': 1980.00,
+                'body-scrub': 1500.00,
+                'aromatherapy': 1750.00,
+                'body-scrub-whole': 2200.00,
+                'foot-reflex': 1200.00,
+                'foot-scrub': 1150.00,
+                'head-ear': 1800.00,
+                'kids-relaxing': 1000.00,
+                'lava-stone': 2500.00,
+                'shiatsu-dry': 1700.00,
+                'ventosa': 1600.00
+            };
+            return prices[serviceType] || 0.00;
+        }
+
+        document.getElementById("redoSelection").addEventListener("click", function() {
+            selectedServices = [];
+            document.querySelectorAll(".service").forEach(service => service.classList.remove("selected"));
             updateSelectedServices();
         });
-    });
 
-    function updateSelectedServices() {
-        const selectedContainer = document.querySelector('.selected-services');
-        selectedContainer.innerHTML = ''; // Clear previous content
-
-        let totalPrice = 0;
-        let selectedTitles = [];
-
-        selectedServices.forEach(service => {
-            const serviceItem = document.createElement('div');
-            serviceItem.classList.add('border-b', 'py-2');
-
-            serviceItem.innerHTML = `
-            <p class="text-black font-bold text-[15px]">${service.title}</p>
-            <p class="text-black text-[15px]">₱${service.price.toFixed(2)}</p>
-        `;
-            selectedContainer.appendChild(serviceItem);
-
-            totalPrice += service.price;
-            selectedTitles.push(service.title);
+        document.getElementById("peopleCount").addEventListener("change", function() {
+            document.getElementById("peopleCountInput").value = this.value;
         });
-
-        // Multiply total price by number of people
-        const peopleCount = parseInt(document.getElementById('peopleCount').value, 10) || 1;
-        const finalTotal = totalPrice * peopleCount;
-        document.querySelector('.service-price').innerText = `₱${finalTotal.toFixed(2)}`;
-
-        // Update hidden input fields before submission
-        document.getElementById('hiddenServiceTitle').value = JSON.stringify(selectedTitles); // Store services as JSON
-        document.getElementById('hiddenServicePrice').value = finalTotal; // Store total price as number
-    }
-
-
-
-
-
-    function updateQuantity(change) {
-        const input = document.getElementById('peopleCount');
-        let currentValue = parseInt(input.value, 10) || 1;
-        currentValue += change;
-        if (currentValue < 1) currentValue = 1; // Ensure quantity is at least 1
-        input.value = currentValue;
-
-        // Recalculate total price after changing people count
-        updateSelectedServices();
-    }
-
-    function getPrice(serviceType) {
-        const prices = {
-            'deep-tissue': 1980.00,
-            'body-scrub': 1500.00,
-            'aromatherapy': 1750.00,
-            'body-scrub-whole': 2200.00,
-            'foot-reflex': 1200.00,
-            'foot-scrub': 1150.00,
-            'head-ear': 1800.00,
-            'kids-relaxing': 1000.00,
-            'lava-stone': 2500.00,
-            'shiatsu-dry': 1700.00,
-            'ventosa': 1600.00
-        };
-        return prices[serviceType] || 0.00;
-    }
-
-    // Ensure price updates when quantity is changed manually in input field
-    document.getElementById('peopleCount').addEventListener('input', () => {
-        updateSelectedServices();
     });
 </script>
+
 @endsection

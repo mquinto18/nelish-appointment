@@ -19,7 +19,7 @@ return new class extends Migration
             $table->json('services')->nullable(); // JSON array of services
             $table->date('date')->nullable(); // Allow nullable appointment date
             $table->time('time')->nullable(); // Allow nullable appointment time
-            $table->string('therapist')->nullable(); // Therapist name (optional)
+            $table->json('therapist')->nullable(); // Correct way            // Therapist name (optional)
             $table->decimal('amount', 8, 2)->nullable(); // Allow null price
             $table->integer('quantity')->nullable(); // Allow null quantity
             $table->integer('duration')->nullable(); // Allow null duration

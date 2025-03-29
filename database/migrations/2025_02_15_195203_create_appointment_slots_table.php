@@ -11,8 +11,9 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->time('time');
-            $table->string('therapist');
+            $table->json('therapist')->nullable();
             $table->date('date');
+            $table->integer('booking_count')->default(1); // Track number of bookings
             $table->timestamps();
         });
     }

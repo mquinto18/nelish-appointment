@@ -29,7 +29,7 @@
                     <input type="hidden" name="quantity" value="{{ $bookingData['quantity'] }}">
                     <input type="hidden" name="date" value="{{ $bookingData['date'] }}">
                     <input type="hidden" name="time" value="{{ $bookingData['time'] }}">
-                    <input type="hidden" name="therapist" value="{{ $bookingData['therapist_name'] }}">
+                    <input type="hidden" name="therapist" value='@json($bookingData["therapist_name"])'>
                     <input type="hidden" name="amount" value="{{ $bookingData['amount'] }}">
                     @foreach($services as $service)
                     <input type="hidden" name="services[]" value="{{ $service }}">
@@ -61,7 +61,7 @@
                     <div>
                         <p class="font-bold text-[18px]">Therapist</p>
                         <div class="px-2 leading-3">
-                            <p class="font-medium">Therapist: {{ $bookingData['therapist_name'] }}</p>
+                           <p class="font-medium">Therapist: {{ $bookingData['therapist_name'] }}</p>
                             <p class="font-medium">Total Fee: {{ $bookingData['amount'] }} Pesos</p>
                         </div>
                     </div>

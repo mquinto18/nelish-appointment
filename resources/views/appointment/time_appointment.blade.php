@@ -33,7 +33,8 @@
     <form action="{{ route('appointment.timeStore') }}" method="POST">
         @csrf
         <input type="hidden" name="selected_time" id="selected_time">
-        <input type="hidden" name="selected_therapist" id="selected_therapist">
+        <input type="hidden" id="selected_therapist" name="selected_therapist" value="[]">
+
 
         <div class="flex justify-center items-center">
             <div class="flex flex-col gap-10 justify-center p-6">
@@ -41,63 +42,76 @@
                 <div class="bg-[#FFFFDB] p-4 rounded-md">
                     <p class="font-bold text-[20px]">Select Time</p>
                     <table class="w-[500px] border-collapse">
-                        <tbody id="time-slots ">
+                        <tbody id="time-slots">
                             @php
                             $timeSlots = ($duration == 60) ?
                             ['1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM'] :
                             ['1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM',
                             '4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM',
                             '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM'];
+
+                            $maxSlots = 3; // Maximum slots per time
                             @endphp
 
                             @foreach ($timeSlots as $index => $time)
                             @php
-                            $isBooked = in_array($time, $bookedTimes);
-                            @endphp
+                            $bookingCount = isset($bookedTimes[$time]) ? $bookedTimes[$time] : 0;
+                            $availableSlots = max(0, $maxSlots - $bookingCount);
+                            $isFullyBooked = $availableSlots <= 0;
+                                @endphp
 
-                            {{-- Open a new row every 3 items --}}
-                            @if ($index % 3 == 0)
-                            <tr>
+                                {{-- Open a new row every 3 items --}}
+                                @if ($index % 3==0)
+                                <tr>
                                 @endif
 
-                                <td class="border px-4 py-3 text-center {{ $isBooked ? 'bg-[#F54C4C]' : 'cursor-pointer time-option' }}"
-                                    onclick="{{ $isBooked ? '' : "selectTime(this, '$time')" }}">
-                                    {{ $time }}
+                                <td class="border px-4 py-3 text-center {{ $isFullyBooked ? 'bg-[#F54C4C] text-white' : 'cursor-pointer time-option' }}"
+                                    onclick="{{ $isFullyBooked ? '' : "selectTime(this, '$time')" }}">
+                                    <div>{{ $time }}</div>
+                                    <div class="text-sm text-gray-600">
+                                        @if (!$isFullyBooked)
+                                        ({{ $availableSlots }} {{ $availableSlots == 1 ? 'slot' : 'slots' }} available)
+                                        @else
+                                        (Fully booked)
+                                        @endif
+                                    </div>
                                 </td>
+
 
                                 {{-- Close row every 3 items or at the last item --}}
                                 @if ($index % 3 == 2 || $index == count($timeSlots) - 1)
-                            </tr>
-                            @endif
-                            @endforeach
+                                </tr>
+                                @endif
+                                @endforeach
                         </tbody>
                     </table>
+
                 </div>
 
                 <!-- Therapist Selection -->
                 <div class="bg-[#FFFFDB] p-4 rounded-md">
-                    <p class="font-bold text-[20px] ">Select Therapist</p>
+                    <p class="font-bold text-[20px]">Select Therapist</p>
                     <table class="w-full border-collapse border border-gray-300 mt-3">
-                        @foreach ($therapists->chunk(2) as $row)
-                        <tr>
-                            @foreach ($row as $therapist)
-                            <td class="border border-gray-300 px-6 py-4 text-center cursor-pointer"
-                                onclick="selectTherapist(this, '{{ $therapist->id }}', '{{ $therapist->first_name }}')">
-                                {{ $therapist->first_name }}
-                            </td>
-                            @endforeach
-                            {{-- If the row has only 1 therapist, add an empty cell to balance the layout --}}
-                            @if ($row->count() == 1)
-                            <td class="border border-gray-300 px-6 py-4"></td>
+                        @foreach ($therapists as $therapist)
+                        @php
+                        $isBooked = isset($selected_time, $bookedTherapists[$selected_time]) &&
+                        in_array($therapist->first_name, $bookedTherapists[$selected_time]);
+                        @endphp
+
+                        <td class="border border-gray-300 px-6 py-4 text-center cursor-pointer 
+        {{ $isBooked ? 'bg-red-400 text-white cursor-not-allowed' : '' }} "
+                            onclick="{{ !$isBooked ? "selectTherapist(this, '$therapist->id', '$therapist->first_name')" : '' }}">
+                            {{ $therapist->first_name }}
+                            @if ($isBooked)
+                            <br><span class="text-sm">(Fully booked)</span>
                             @endif
-                        </tr>
+                        </td>
                         @endforeach
+
+
                     </table>
                 </div>
 
-                <!-- <div class="text-center mt-6">
-                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Confirm Appointment</button>
-            </div> -->
             </div>
 
             <div class="bg-[#FFFFDB] my-20 mx-10 w-[500px] rounded-md flex flex-col justify-between min-h-[400px]">
@@ -147,13 +161,26 @@
     }
 
     function selectTherapist(element, id, name) {
-        document.getElementById('selected_therapist').value = id;
+        let selectedInput = document.getElementById('selected_therapist');
+        let selectedTherapists = selectedInput.value ? JSON.parse(selectedInput.value) : [];
 
-        // Remove previous selection
-        document.querySelectorAll('.therapist-card').forEach(el => el.classList.remove('selected'));
+        // If the same therapist is clicked again, deselect them
+        if (selectedTherapists.includes(name)) {
+            selectedTherapists = []; // Clear selection
+            element.classList.remove('selected');
+        } else {
+            // Deselect any previously selected therapist
+            document.querySelectorAll('.therapist').forEach(el => el.classList.remove('selected'));
 
-        // Highlight selected
-        element.classList.add('selected');
+            // Select the new therapist
+            selectedTherapists = [name];
+            element.classList.add('selected');
+        }
+
+        // Update the input value
+        selectedInput.value = JSON.stringify(selectedTherapists);
+
+        console.log("Selected Therapist:", selectedInput.value);
     }
 </script>
 

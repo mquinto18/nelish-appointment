@@ -86,8 +86,20 @@
                                     @elseif ($appointment->status === 'Approved')
                                     <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">Cancel</a>
                                     @elseif ($appointment->status === 'Completed')
-                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">Receipt</a>
+                                    <a target="_blank" href="{{ route('appointments.receipt', $appointment->id) }}"
+                                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">
+                                        Receipt 
+                                    </a>
                                     @endif
+
+                                    <!-- Delete option added for all statuses -->
+                                    <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this appointment?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="block px-4 py-2 text-red-600 hover:bg-gray-100 no-underline w-full text-left">
+                                            Delete
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </td>

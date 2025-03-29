@@ -44,7 +44,7 @@
         </div>
 
         <!-- Pending Admins Section -->
-        <div class="bg-white w-full p-3 rounded-md">
+        <!-- <div class="bg-white w-full p-3 rounded-md">
             <h1 class="text-[20px] text-center">Pending Admin Approvals</h1>
 
             <div class="mx-10 py-3 ">
@@ -83,7 +83,7 @@
                 </div>
                 @endforeach
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
 <script>

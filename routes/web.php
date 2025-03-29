@@ -49,6 +49,8 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
     Route::put('/account/password', [AccountController::class, 'password'])->name('account.password');
     Route::get('/booked-appointment', [AccountController::class, 'bookedAppointment'])->name('booked.appointments');
+    Route::delete('/appointments/{id}', [AccountController::class, 'destroy'])->name('appointments.destroy');
+    Route::get('/appointments/{id}/receipt', [AccountController::class, 'generateReceipt'])->name('appointments.receipt');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
