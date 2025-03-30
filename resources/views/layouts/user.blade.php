@@ -58,7 +58,7 @@
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li class="mx-4">
+                                <li class="mx-4 w-[200px]">
                                     <form method="POST" action="{{ route('logout') }}" class="d-grid">
                                         @csrf
                                         <button type="submit" class="btn btn-danger">Sign Out</button>

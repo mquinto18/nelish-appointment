@@ -17,14 +17,25 @@ class AdminController extends Controller
 {
     public function index()
     {
-        // Fetch approved admins from the database
-        $admins = User::where('role', 'admin')->get();
+        $totalClients = User::where('role', 'user')->count();
+        $totalAppointments = Appointment::count();
+        $completedAppointments = Appointment::where('status', 'completed')->count();
+        $todaysAppointments = Appointment::whereDate('date', today())
+        ->where('status', 'approved')
+        ->take(2)
+        ->get();
+    
+        $appointmentRequests = Appointment::where('status', 'pending')->take(2)->get();
 
-        // Fetch pending admins from the session
-        $pendingAdmins = session()->get('pending_admins', []);
-
-        return view('admin', compact('admins', 'pendingAdmins'));
+        return view('admin', compact(
+            'totalClients',
+            'totalAppointments',
+            'completedAppointments',
+            'todaysAppointments',
+            'appointmentRequests'
+        ));
     }
+
 
     public function approveAdmin($email)
     {
@@ -32,18 +43,18 @@ class AdminController extends Controller
 
         foreach ($pendingAdmins as $index => $admin) {
             if ($admin['email'] === $email) {
-                // Save admin to the database
+
                 User::create([
                     'first_name' => $admin['first_name'],
                     'last_name' => $admin['last_name'],
                     'email' => $admin['email'],
                     'birth_date' => $admin['birth_date'],
                     'mobile_number' => $admin['mobile_number'],
-                    'password' => Hash::make($admin['password']), // Ensure password is hashed
+                    'password' => Hash::make($admin['password']),
                     'role' => 'admin',
                 ]);
 
-                // Remove from pending session
+
                 unset($pendingAdmins[$index]);
                 session()->put('pending_admins', array_values($pendingAdmins));
 
@@ -56,15 +67,15 @@ class AdminController extends Controller
 
     public function rejectAdmin($email)
     {
-        // Retrieve pending admins from session
+
         $pendingAdmins = session()->get('pending_admins', []);
 
-        // Remove the rejected admin
+
         $updatedAdmins = array_filter($pendingAdmins, function ($admin) use ($email) {
             return $admin['email'] !== $email;
         });
 
-        // Update the session
+
         session()->put('pending_admins', array_values($updatedAdmins));
 
         return redirect()->back()->with('error', 'Admin request rejected.');
@@ -80,7 +91,7 @@ class AdminController extends Controller
 
     public function viewAppointment()
     {
-        $appointments = Appointment::paginate(7); // Limit to 2 rows per page
+        $appointments = Appointment::paginate(7);
         return view('adminComponents.listAppointment', compact('appointments'));
     }
 
@@ -101,7 +112,7 @@ class AdminController extends Controller
 
     public function appointmentEdit($id)
     {
-        $appointment = Appointment::findOrFail($id); // Fetch appointment by ID
+        $appointment = Appointment::findOrFail($id);
         return view('adminComponents.appointmentEdit', compact('appointment'));
     }
 
@@ -141,85 +152,93 @@ class AdminController extends Controller
 
     public function therapistSched()
     {
-        // Fetch managers
-        $managers = User::where('role', 'manager')->get();
 
-        // Fetch appointments grouped by therapist
+        $managers = User::where('role', 'manager')->get();
         $appointments = Appointment::whereIn('therapist', $managers->pluck('first_name'))->get();
 
         return view('adminComponents.therapistSched', compact('managers', 'appointments'));
     }
 
 
-public function dtrView(Request $request, $therapist, $weekOffset = 0) 
-{
-    $weekOffset = (int) $weekOffset; // Ensure it's an integer
-    $month = $request->query('month'); // Get month from request query
+    public function dtrView(Request $request, $therapist, $weekOffset = 0)
+    {
+        $weekOffset = (int) $weekOffset;
+        $month = $request->query('month');
 
-    $selectedMonth = $month ? Carbon::parse("1 $month")->month : null; // Convert month name to number
+        $selectedMonth = $month ? Carbon::parse("1 $month")->month : null;
 
-    $startOfWeek = Carbon::now()->startOfWeek()->addWeeks($weekOffset);
-    $endOfWeek = $startOfWeek->copy()->endOfWeek();
+        $startOfWeek = Carbon::now()->startOfWeek()->addWeeks($weekOffset);
+        $endOfWeek = $startOfWeek->copy()->endOfWeek();
 
-    // Fetch DTR records filtered by selected month (if selected)
-    $dtrRecords = TherapistDtr::where('name', $therapist)
-        ->when($selectedMonth, function ($query) use ($selectedMonth) {
-            return $query->whereMonth('date', $selectedMonth);
-        })
-        ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
-        ->get();
 
-    return view('adminComponents.adminDtrView', compact('dtrRecords', 'therapist', 'weekOffset', 'startOfWeek', 'endOfWeek', 'selectedMonth'));
-}
+        $dtrRecords = TherapistDtr::where('name', $therapist)
+            ->when($selectedMonth, function ($query) use ($selectedMonth) {
+                return $query->whereMonth('date', $selectedMonth);
+            })
+            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+            ->get();
 
-public function systemuser(Request $request)
-{
-    $search = $request->input('search');
-
-    // Query users based on search input
-    $users = User::when($search, function ($query, $search) {
-            return $query->where('first_name', 'like', "%{$search}%")
-                         ->orWhere('last_name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%")
-                         ->orWhere('role', 'like', "%{$search}%");
-        })
-        ->orderBy('created_at', 'desc')
-        ->paginate(10);
-
-    return view('adminComponents.systemUser', compact('users', 'search'));
-}
-
-public function saveUser(Request $request)
-
-{    // Validate input data
-    $validator = Validator::make($request->all(), [
-        'first_name' => 'required|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|string|min:6',
-        'birthday' => 'required|date',
-        'mobile_number' => 'required|string|max:15',
-        'gender' => 'required|in:male,female,other',
-        'role' => 'required|in:user,admin,manager',
-    ]);
-
-    if ($validator->fails()) {
-        return redirect()->back()->withErrors($validator)->withInput();
+        return view('adminComponents.adminDtrView', compact('dtrRecords', 'therapist', 'weekOffset', 'startOfWeek', 'endOfWeek', 'selectedMonth'));
     }
 
-    // Create and save user
-    User::create([
-        'first_name' => $request->first_name,
-        'last_name' => $request->last_name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password), // Encrypt password
-        'birth_date' => $request->birthday,
-        'mobile_number' => $request->mobile_number,
-        'gender' => $request->gender,
-        'role' => $request->role,
-    ]);
+    public function systemuser(Request $request)
+    {
+        $search = $request->input('search');
 
-    notify()->success('Employee added successfully!');
-    return redirect()->back()->with('success', 'User added successfully!');
-}
+
+        $users = User::when($search, function ($query, $search) {
+            return $query->where('first_name', 'like', "%{$search}%")
+                ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%")
+                ->orWhere('role', 'like', "%{$search}%");
+        })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('adminComponents.systemUser', compact('users', 'search'));
+    }
+
+    public function saveUser(Request $request)
+
+    {    // Validate input data
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'birthday' => 'required|date',
+            'mobile_number' => 'required|string|max:15',
+            'gender' => 'required|in:male,female,other',
+            'role' => 'required|in:user,admin,manager',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // Create and save user
+        User::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'birth_date' => $request->birthday,
+            'mobile_number' => $request->mobile_number,
+            'gender' => $request->gender,
+            'role' => $request->role,
+        ]);
+
+        notify()->success('Employee added successfully!');
+        return redirect()->back()->with('success', 'User added successfully!');
+    }
+
+    public function viewDTR()
+    {
+        $managers = User::where('role', 'manager')->get();
+
+
+        $appointments = Appointment::whereIn('therapist', $managers->pluck('first_name'))->get();
+
+        return view('adminComponents.viewDtr', compact('managers', 'appointments'));
+    }
 }

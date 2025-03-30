@@ -22,15 +22,11 @@
                 <div class="text-[15px]">
                     {{ $manager->first_name }}
                 </div>
-                <button
-                    @click="showTable = !showTable"
-                    class="toggleButton bg-white py-1 px-4 text-black rounded-md">
-                    View
-                </button>
+              
             </div>
 
             <!-- Appointment Table (Hidden by Default) -->
-            <div x-show="showTable" class="adminDetails leading-3 mt-6 bg-white text-black p-4 shadow-lg rounded-lg">
+            <div class="adminDetails leading-3 mt-6 bg-white text-black p-4 shadow-lg rounded-lg">
                 <table class="w-full border-collapse border border-gray-300">
                     <thead class="bg-gray-200">
                         <tr>

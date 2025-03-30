@@ -66,6 +66,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/appointment/{id}', [AdminController::class, 'destroy'])->name('appointment.delete');
     Route::get('/dtrView/{therapist}/{weekOffset?}', [AdminController::class, 'dtrView'])->name('dtr.view');
     Route::get('/admin/systemUser', [AdminController::class, 'systemuser'])->name('systemUser');
+    Route::get('/admin/viewDTR', [AdminController::class, 'viewDTR'])->name('viewDTR');
+
+
+    // Route::get('/admin/viewDTR/{therapist}/{weekOffset?}', [AdminController::class, 'viewDTR'])->name('viewDTR');
     Route::post('/admin/saveUser', [AdminController::class, 'saveUser'])->name('save.user');
     
    

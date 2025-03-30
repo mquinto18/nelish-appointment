@@ -21,6 +21,7 @@ return new class extends Migration
             $table->time('time')->nullable(); // Allow nullable appointment time
             $table->json('therapist')->nullable(); // Correct way            // Therapist name (optional)
             $table->decimal('amount', 8, 2)->nullable(); // Allow null price
+            $table->enum('payment_method', ['cash', 'gcash']);
             $table->integer('quantity')->nullable(); // Allow null quantity
             $table->integer('duration')->nullable(); // Allow null duration
             $table->string('status')->default('pending'); // Default status to 'pending'

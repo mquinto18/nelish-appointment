@@ -109,6 +109,9 @@
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             selectable: true,
+            validRange: {
+                start: new Date() // This ensures the current date is the earliest selectable date
+            },
             dateClick: function(info) {
                 var previouslySelected = document.querySelector('.selected-date');
                 if (previouslySelected) {
@@ -127,4 +130,5 @@
         calendar.render();
     });
 </script>
+
 @endsection

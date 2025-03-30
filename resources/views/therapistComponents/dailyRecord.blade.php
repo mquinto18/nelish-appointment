@@ -29,9 +29,11 @@
             <div class="flex gap-2 mt-3">
                 <div class="w-full">
                     <label for="time_in" class="form-label font-medium text-black block mb-2">Time In</label>
-                    <input type="time" class="form-control block w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        id="time_in" name="time_in" required>
+                    <input type="time" class="form-control block w-full border-2 border-gray-300 rounded-lg px-3 py-2 bg-gray-200 cursor-not-allowed"
+                        id="time_in" name="time_in" required value="{{ now()->setTimezone('Asia/Manila')->format('H:i') }}" readonly>
                 </div>
+
+
                 <div class="w-full">
                     <label for="time_out" class="form-label font-medium text-black block mb-2">Time Out</label>
                     <input type="time" class="form-control block w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"

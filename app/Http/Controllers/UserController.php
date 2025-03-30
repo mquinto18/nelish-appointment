@@ -182,28 +182,29 @@ class UserController extends Controller
             'time' => 'required',
             'therapist' => 'required|string',
             'amount' => 'required|numeric',
+            'payment_method' => 'required|in:cash,gcash', // Validate payment method
         ]);
-
+    
         $user = Auth::user();
         $validated['time'] = Carbon::parse($validated['time'])->format('H:i:s');
         $validated['services'] = json_encode($validated['services']);
         $validated['user_id'] = $user->id ?? null;
         $validated['name'] = $user->first_name ?? 'Guest';
         $validated['email'] = $user->email ?? null;
-
+    
         // **Check existing slot record**
         $slot = AppointmentSlot::where('time', $validated['time'])
             ->where('therapist', $validated['therapist'])
             ->where('date', $validated['date'])
             ->first();
-
+    
         if ($slot && $slot->booking_count >= 3) {
             return redirect()->back()->with('error', 'The selected time slot is fully booked.');
         }
-
+    
         // **Create Appointment**
         $appointment = Appointment::create($validated);
-
+    
         // **Reserve Slot**
         if ($slot) {
             // If the slot already exists, increment booking_count
@@ -218,10 +219,11 @@ class UserController extends Controller
                 'booking_count' => 1, // Set initial count
             ]);
         }
-
+    
         notify()->success('Appointment submitted successfully!');
         return redirect()->route('home')->with('success', 'Appointment booked successfully!');
     }
+    
 
 
 

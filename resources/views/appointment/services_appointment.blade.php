@@ -391,10 +391,13 @@
         const peopleCountSelect = document.getElementById("peopleCount");
         const selectedContainer = document.querySelector(".selected-services");
         let maxSelections = parseInt(peopleCountSelect.value, 10);
+        let duration = 60; // Default duration is 60 minutes
 
         function updateMaxSelections() {
+            // Reset selected services when people count changes
+            selectedServices = [];
+            document.querySelectorAll(".service").forEach(service => service.classList.remove("selected"));
             maxSelections = parseInt(peopleCountSelect.value, 10);
-            selectedServices = selectedServices.slice(0, maxSelections);
             updateSelectedServices();
         }
 
@@ -411,9 +414,17 @@
                 const price = getPrice(serviceType);
                 selectedServices.push({
                     title,
-                    price
+                    price,
+                    serviceType
                 });
                 this.classList.add("selected");
+                updateSelectedServices();
+            });
+        });
+
+        document.querySelectorAll("input[name='duration']").forEach(radio => {
+            radio.addEventListener("change", function() {
+                duration = parseInt(this.value, 10);
                 updateSelectedServices();
             });
         });
@@ -430,6 +441,29 @@
                 selectedContainer.appendChild(serviceItem);
                 totalPrice += service.price;
                 serviceTitles.push(service.title);
+
+                // If the user selects "deep-tissue" and 90 minutes, add additional charge
+                if (duration === 90) {
+                    const additionalCharges = {
+                        'deep-tissue': 200,
+                        'shiatsu-dry': 200,
+                        'aromatherapy': 201,
+                        'ventosa': 201,
+                        'foot-reflex': 200,
+                        'lava-stone': 200,
+                        'foot-scrub': 201,
+                        'body-scrub': 200,
+                        'body-scrub-whole': 200,
+                        'head-ear': 200,
+                        'kids-relaxing': 200,
+
+                    };
+
+                    if (additionalCharges[service.serviceType]) {
+                        totalPrice += additionalCharges[service.serviceType];
+                    }
+                }
+
             });
             document.querySelector(".service-price").innerText = `₱${totalPrice.toFixed(2)}`;
             document.getElementById("hiddenServiceTitle").value = JSON.stringify(serviceTitles);
@@ -438,17 +472,17 @@
 
         function getPrice(serviceType) {
             const prices = {
-                'deep-tissue': 1980.00,
-                'body-scrub': 1500.00,
-                'aromatherapy': 1750.00,
-                'body-scrub-whole': 2200.00,
-                'foot-reflex': 1200.00,
-                'foot-scrub': 1150.00,
-                'head-ear': 1800.00,
-                'kids-relaxing': 1000.00,
-                'lava-stone': 2500.00,
-                'shiatsu-dry': 1700.00,
-                'ventosa': 1600.00
+                'deep-tissue': 900.00,
+                'body-scrub': 1200.00,
+                'aromatherapy': 999.00,
+                'body-scrub-whole': 1500.00,
+                'foot-reflex': 950.00,
+                'foot-scrub': 999.00,
+                'head-ear': 950.00,
+                'kids-relaxing': 950.00,
+                'lava-stone': 1150.00,
+                'shiatsu-dry': 950.00,
+                'ventosa': 999.00
             };
             return prices[serviceType] || 0.00;
         }
@@ -464,5 +498,6 @@
         });
     });
 </script>
+
 
 @endsection

@@ -479,15 +479,16 @@
 
                             <!-- Mobile Number Field -->
                             <div>
-                                <label for="mobile_number" >Mobile Number</label>
+                                <label for="mobile_number">Mobile Number</label>
                                 <div class="flex items-center">
                                     <span class="px-3 py-2 bg-gray-200 border border-gray-300 rounded-l-md text-gray-700">+63</span>
-                                    <input type="text" name="mobile_number" id="mobile_number"
+                                    <input type="number" name="mobile_number" id="mobile_number"
                                         class="block w-full rounded-r-md border border-gray-300 p-2 focus:ring-blue-500 focus:border-blue-500 text-black bg-white placeholder-gray-400"
                                         pattern="^9\d{9}$"
                                         maxlength="10"
                                         placeholder="9123456789"
                                         value="{{ old('mobile_number', auth()->user()->mobile_number ?? '') }}"
+                                        title="Please input the 10 digit of your number"
                                         required>
                                 </div>
                                 @error('mobile_number')
@@ -502,11 +503,13 @@
                                 <label for="password">Password</label>
                                 <input type="password" name="password" id="password"
                                     placeholder="Enter your password"
-                                    required class="text-black">
+                                    required class="text-black"
+                                    pattern="^(?=.*[A-Z])(?=.*\d).+$" title="Password must contain at least one uppercase letter and one number.">
                                 @error('password')
                                 <span class="text-red-500 text-sm">{{ $message }}</span>
                                 @enderror
                             </div>
+
 
                             <!-- Confirm Password Field -->
                             <div class="form-group">

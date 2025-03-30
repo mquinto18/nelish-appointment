@@ -57,7 +57,7 @@
                         </td>
                         <td class="py-3 px-4 border-b">{{ $appointment->therapist }}</td>
                         <td class="py-3 px-4 border-b">{{ number_format($appointment->amount, 2) }}</td>
-                        <td class="py-3 px-4 border-b">Card/Cash</td> {{-- Change dynamically if applicable --}}
+                        <td class="py-3 px-4 border-b">{{ $appointment->payment_method }}</td> 
                         <td class="py-3 px-4 border-b">{{ ucfirst($appointment->status) }}</td>
                         <td class="py-3 px-4 border-b relative">
                             <div x-data="{ open: false }" class="relative">

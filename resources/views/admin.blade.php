@@ -9,83 +9,137 @@
     }
 </style>
 
-<div class="shadow-lg shadow-black ">
-    <div class="p-3">
-        <h1 class="text-[30px] text-white">Welcome Admin!</h1>
-    </div>
+<div class="">
+    <h1 class="text-[30px] text-white">Admin Dashboard</h1>
 
-    <div class="flex gap-4 p-3">
-        <div class="bg-white w-full p-3 rounded-md">
-            <h1 class="text-[20px] text-center">Manage Acccount</h1>
-
-            <div class="mx-10 py-3">
-                <h1 class="text-[20px]">Employee List</h1>
-
-                @foreach ($admins as $admin)
-                <div class="bg-[#074E45] text-white py-3 px-4 rounded-lg w-full mb-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <i class="fa-solid fa-circle-user text-[30px]"></i>
-                        </div>
-                        <div class="text-[15px]">
-                            {{ $admin->first_name }} {{ $admin->last_name }}
-                        </div>
-                        <button class="toggleButton bg-white py-1 px-4 text-black rounded-md">View</button>
-                    </div>
-
-                    <div class="adminDetails leading-3 mt-6 hidden">
-                        <p>Email: {{ $admin->email }}</p>
-                        <p>Birth Date: {{ $admin->birth_date ?? 'N/A' }}</p>
-                        <p>Number: {{ $admin->mobile_number ?? 'N/A' }}</p>
-                    </div>
-                </div>
-                @endforeach
+    <div class="flex gap-4 py-3">
+        <!-- Total Clients -->
+        <div class="bg-white w-full p-4 rounded-md flex items-center gap-3 shadow-md">
+            <i class="fas fa-user text-4xl"></i>
+            <div>
+                <h2 class="text-xl font-bold">{{ $totalClients }}</h2>
+                <p class="text-gray-600">Total client register</p>
             </div>
         </div>
 
-        <!-- Pending Admins Section -->
-        <!-- <div class="bg-white w-full p-3 rounded-md">
-            <h1 class="text-[20px] text-center">Pending Admin Approvals</h1>
+        <!-- Total Appointments -->
+        <div class="bg-white w-full p-4 rounded-md flex items-center gap-3 shadow-md border-2 border-blue-500">
+            <i class="fas fa-calendar-alt text-4xl"></i>
 
-            <div class="mx-10 py-3 ">
-                <h1 class="text-[20px]">Pending Employee List</h1>
-
-                @foreach ($pendingAdmins as $admin)
-                <div class="bg-[#074E45] text-black py-3 px-4 rounded-lg w-full mb-4 text-white">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <i class="fa-solid fa-circle-user text-[30px] text-white"></i>
-                        </div>
-                        <div class="text-[15px]">
-                            {{ $admin['first_name'] }} {{ $admin['last_name'] }}
-                        </div>
-                        <button class="toggleButton bg-white py-1 px-4 text-black rounded-md">View</button>
-                    </div>
-
-                    <div class="adminDetails leading-3 mt-6 hidden">
-                        <p>Email: {{ $admin['email'] }}</p>
-                        <p>Birth Date: {{ $admin['birth_date'] ?? 'N/A' }}</p>
-                        <p>Number: {{ $admin['mobile_number'] ?? 'N/A' }}</p>
-                    </div>
-
-                    <!-- Approve Button -->
-                    <div class="flex justify-center gap-2 mt-3">
-                        <form action="{{ route('approve.admin', $admin['email']) }}" method="POST" class="mt-2">
-                            @csrf
-                            <button type="submit" class="bg-green-500 text-white py-1 px-3 rounded-md w-[200px]">Accept</button>
-                        </form>
-
-                        <form action="{{ route('reject.admin', $admin['email']) }}" method="POST" class="mt-2 inline-block">
-                            @csrf
-                            <button type="submit" class="bg-red-500 text-white py-1 px-3 rounded-md w-[200px]">Void</button>
-                        </form>
-                    </div>
-                </div>
-                @endforeach
+            <div>
+                <h2 class="text-xl font-bold">{{ $totalAppointments }}</h2>
+                <p class="text-gray-600">Total Appointments</p>
             </div>
-        </div> -->
+        </div>
+
+        <!-- Completed Appointments -->
+        <div class="bg-white w-full p-4 rounded-md flex items-center gap-3 shadow-md">
+            <i class="fas fa-calendar text-4xl"></i>
+            <div>
+                <h2 class="text-xl font-bold">{{ $completedAppointments }}</h2>
+                <p class="text-gray-600">Total Appointments Completed</p>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <h1 class="text-[25px] text-white">Today's Appointment</h1>
+        <div>
+            <table class="w-full border-collapse border bg-white">
+                <thead class="bg-[#FAFAD2] text-left">
+                    <tr>
+                        <th class="border bg-white px-4 py-2">ID</th>
+                        <th class="border bg-white px-4 py-2">Name</th>
+                        <th class="border bg-white px-4 py-2">Services</th>
+                        <th class="border bg-white px-4 py-2">Date</th>
+                        <th class="border bg-white px-4 py-2">Time</th>
+                        <th class="border bg-white px-4 py-2">Therapist</th>
+                        <th class="border bg-white px-4 py-2">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($todaysAppointments as $appointment)
+                    <tr>
+                        <td class="border border-gray-300 px-4 py-2">{{ $loop->iteration }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ $appointment->name }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ implode(', ', json_decode($appointment->services, true)) }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ $appointment->date }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ $appointment->time }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ $appointment->therapist }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ ucfirst($appointment->status) }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="8" class="text-center border-t bg-white py-1">
+                            <a href="{{ route('viewAppointment') }}" class="text-blue-500 text-sm font-bold no-underline hover:underline">
+                                View all
+                            </a>
+                        </td>
+                    </tr>
+                </tfoot>
+
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h1 class="text-[25px] text-white">Appointment Request</h1>
+        <div>
+            <table class="w-full border-collapse border bg-white">
+                <thead class="bg-[#FAFAD2] text-left">
+                    <tr>
+                        <th class="border bg-white px-4 py-2">ID</th>
+                        <th class="border bg-white px-4 py-2">Name</th>
+                        <th class="border bg-white px-4 py-2">Services</th>
+                        <th class="border bg-white px-4 py-2">Date</th>
+                        <th class="border bg-white px-4 py-2">Time</th>
+                        <th class="border bg-white px-4 py-2">Therapist</th>
+                        <th class="border bg-white px-4 py-2">Status</th>
+                        <th class="border bg-white px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($appointmentRequests->take(2) as $appointment)
+                    <tr>
+                        <td class="border border-gray-300 px-4 py-2">{{ $loop->iteration }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ $appointment->name }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ implode(', ', json_decode($appointment->services, true)) }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ $appointment->date }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ $appointment->time }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ $appointment->therapist }}</td>
+                        <td class="border border-gray-300 px-4 py-2">{{ ucfirst($appointment->status) }}</td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <form action="{{ route('update.appointment.status', $appointment->id) }}" method="POST">
+                                @csrf
+                                <select name="status" onchange="this.form.submit()"
+                                    class="border p-1 rounded w-full {{ $appointment->status == 'Pending' ? 'bg-orange-400' : ($appointment->status == 'Approved' ? 'bg-green-400' : ($appointment->status == 'Completed' ? 'bg-blue-400' : 'bg-red-400')) }}
+ text-white">
+                                    <option value="Pending" {{ $appointment->status == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="Approved" {{ $appointment->status == 'Approved' ? 'selected' : '' }}>Approved</option>
+                                    <option value="Rejected" {{ $appointment->status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                                    <option value="Completed" {{ $appointment->status == 'Completed' ? 'selected' : '' }}>Completed</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="8" class="text-center border-t bg-white py-1">
+                            <a href="{{ route('viewAppointment') }}" class="text-blue-500 text-sm font-bold no-underline hover:underline">
+                                View all
+                            </a>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
 </div>
+
 <script>
     document.querySelectorAll(".toggleButton").forEach((button, index) => {
         button.addEventListener("click", function() {

@@ -11,18 +11,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Admin Dashboard</title>
     <style type="text/css">
-        .notify{
+        .notify {
             z-index: 1001 !important;
             margin: 20px;
-            font-size: 14px !important;   /* Smaller text */
-            padding: 2px !important;     /* Adjust padding */
-            border-radius: 8px !important; /* Softer corners */
+            font-size: 14px !important;
+            /* Smaller text */
+            padding: 2px !important;
+            /* Adjust padding */
+            border-radius: 8px !important;
+            /* Softer corners */
         }
     </style>
 </head>
 
 <body>
-@include('notify::components.notify')
+    @include('notify::components.notify')
     <div>
         <nav class="bg-[#074E45]">
             <div class="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,11 +53,17 @@
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-                            <li class="mx-4">
+                            <li class="mx-4 w-[200px]">
+                                <a href="/admin" class="block no-underline text-black">
+                                    <div class="bg-white py-2 rounded-md">
+                                        Manage account
+                                    </div>
+                                </a>
                                 <form method="POST" action="{{ route('logout') }}" class="d-grid">
                                     @csrf
                                     <button type="submit" class="btn btn-danger">Sign Out</button>
                                 </form>
+
                             </li>
                         </ul>
                     </div>
@@ -76,32 +85,32 @@
                 <div class="sidebar text-center flex flex-col gap-3 mx-3 mt-10">
                     <a href="/admin" class="block no-underline text-black">
                         <div class="bg-white py-2 px-3 rounded-md">
-                        Manage Account
+                            Home
+                        </div>
+                    </a>
+                    <a href="{{ route('viewDTR') }}" class="block no-underline text-black">
+                        <div class="bg-white py-2 px-3 rounded-md">
+                            Therapist DTR
                         </div>
                     </a>
                     <a href="{{ route('systemUser') }}" class="block no-underline text-black">
                         <div class="bg-white py-2 px-3 rounded-md">
-                        System User
+                            System User
                         </div>
                     </a>
                     <a href="{{ route('clientTherapist.data') }}" class="block no-underline text-black">
                         <div class="bg-white py-2 px-3 rounded-md">
-                        View Client and Therapist Data 
+                            View Client and Therapist Data
                         </div>
                     </a>
                     <a href="{{ route('therapistSched') }}" class="block no-underline text-black">
                         <div class="bg-white py-2 px-3 rounded-md">
-                        Therapist Schedule
+                            Therapist Schedule
                         </div>
                     </a>
                     <a href="{{ route('viewAppointment') }}" class="block no-underline text-black">
                         <div class="bg-white py-2 px-3 rounded-md">
-                        View Appointment
-                        </div>
-                    </a>
-                    <a href="" class="block no-underline text-black">
-                        <div class="bg-white py-2 px-3 rounded-md">
-                            Logout
+                            View Appointment
                         </div>
                     </a>
 

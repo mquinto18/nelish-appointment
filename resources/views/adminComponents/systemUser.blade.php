@@ -120,7 +120,10 @@
 
                         <div class="mb-3">
                             <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <input type="password" name="password" id="password"
+                                    placeholder="Enter your password"
+                                    required class="form-control"
+                                    pattern="^(?=.*[A-Z])(?=.*\d).+$" title="Password must contain at least one uppercase letter and one number.">
                         </div>
 
                         <div class="mb-3">

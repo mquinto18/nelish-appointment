@@ -16,6 +16,7 @@ class Appointment extends Model
         'time',
         'therapist',
         'amount',
+        'payment_method',
         'quantity',
         'duration',
     ];
