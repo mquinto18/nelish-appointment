@@ -19,12 +19,14 @@ return new class extends Migration
             $table->json('services')->nullable(); // JSON array of services
             $table->date('date')->nullable(); // Allow nullable appointment date
             $table->time('time')->nullable(); // Allow nullable appointment time
-            $table->json('therapist')->nullable(); // Correct way            // Therapist name (optional)
+            $table->string('therapist')->nullable(); // Correct way // Therapist name (optional)
             $table->decimal('amount', 8, 2)->nullable(); // Allow null price
             $table->enum('payment_method', ['cash', 'gcash']);
+            $table->string('payment_proof')->nullable();
             $table->integer('quantity')->nullable(); // Allow null quantity
             $table->integer('duration')->nullable(); // Allow null duration
             $table->string('status')->default('pending'); // Default status to 'pending'
+            $table->string('payment_status')->default('not paid');
             $table->text('notes')->nullable(); // Additional notes (optional)
             $table->timestamps();
         });

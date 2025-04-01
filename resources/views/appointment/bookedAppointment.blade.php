@@ -28,7 +28,7 @@
                         <th class="text-center">Appointment Date</th>
                         <th class="text-center">Appointment Time</th>
                         <th class="text-center">Services Type</th>
-                        <th class="text-center">Therapist</th>
+                       
                         <th class="text-center">Total Amount</th>
                         <th class="text-center">Payment Method</th>
                         <th class="text-center">Status</th>
@@ -55,9 +55,9 @@
                         <td class="py-3 px-4 border-b">
                             {{ is_array(json_decode($appointment->services, true)) ? implode(', ', json_decode($appointment->services, true)) : $appointment->services }}
                         </td>
-                        <td class="py-3 px-4 border-b">{{ $appointment->therapist }}</td>
+                    
                         <td class="py-3 px-4 border-b">{{ number_format($appointment->amount, 2) }}</td>
-                        <td class="py-3 px-4 border-b">{{ $appointment->payment_method }}</td> 
+                        <td class="py-3 px-4 border-b">{{ $appointment->payment_method }}</td>
                         <td class="py-3 px-4 border-b">{{ ucfirst($appointment->status) }}</td>
                         <td class="py-3 px-4 border-b relative">
                             <div x-data="{ open: false }" class="relative">
@@ -76,19 +76,48 @@
                                         data-services="{{ is_array(json_decode($appointment->services, true)) ? implode(', ', json_decode($appointment->services, true)) : $appointment->services }}"
                                         data-therapist="{{ $appointment->therapist }}"
                                         data-amount="{{ number_format($appointment->amount, 2) }}"
-                                        data-payment="Card/Cash"
+                                        data-payment="{{ ucfirst($appointment->payment_method) }}"
                                         data-status="{{ ucfirst($appointment->status) }}"
                                         onclick="fillModal(this)">View</a>
 
-                                    @if ($appointment->status === 'Pending')
-                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">Cancel</a>
+                                    @if ($appointment->status === 'pending')
+                                    <form action="{{ route('appointments.cancel', $appointment->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="Cancelled">
+                                        <button type="submit" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline w-full text-left">
+                                            Cancel
+                                        </button>
+                                    </form>
+
                                     <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">Reschedule</a>
+
+                                    @if ($appointment->payment_method === 'gcash')
+                                    <a target="_blank" href="{{ route('appointments.receipt', $appointment->id) }}"
+                                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">
+                                        Receipt
+                                    </a>
+                                    @endif
                                     @elseif ($appointment->status === 'Approved')
-                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">Cancel</a>
+                                    <form action="{{ route('appointments.cancel', $appointment->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="Cancelled">
+                                        <button type="submit" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline w-full text-left">
+                                            Cancel
+                                        </button>
+                                    </form>
+
+                                    @if ($appointment->payment_method === 'gcash')
+                                    <a target="_blank" href="{{ route('appointments.receipt', $appointment->id) }}"
+                                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">
+                                        Receipt
+                                    </a>
+                                    @endif
                                     @elseif ($appointment->status === 'Completed')
                                     <a target="_blank" href="{{ route('appointments.receipt', $appointment->id) }}"
                                         class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">
-                                        Receipt 
+                                        Receipt
                                     </a>
                                     @endif
 
@@ -101,6 +130,7 @@
                                         </button>
                                     </form>
                                 </div>
+
                             </div>
                         </td>
 

@@ -394,7 +394,7 @@
 
                     <div class="form-options">
                         <div class="forgot-password">
-                            <a href="#">Forgot Password?</a>
+                            <a href="{{ route('forgotPassword') }}">Forgot Password?</a>
                         </div>
                         <div class="remember-me">
                             <label>

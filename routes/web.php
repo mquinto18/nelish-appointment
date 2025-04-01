@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PayMongoController;
 use App\Http\Controllers\TherapistController;
 use App\Http\Controllers\UserController;
+use App\Models\Therapist;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,8 +18,11 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('login', 'loginAction')->name('login.action');
 
     Route::get('register', 'register')->name('register');
+    Route::get('forgotPassword', 'forgotPassword')->name('forgotPassword');
+    Route::post('/forgot-password', 'sendResetLink')->name('password.email');
+    Route::post('/reset-password', 'updatePassword')->name('password.update');
+    Route::get('/reset-password/{token}', 'showResetForm')->name('password.reset');
     Route::post('register', 'registerSave')->name('register.save');
-
     Route::post('logout', 'logout')->name('logout');
 
     Route::get('auth/redirection/{provider}', 'authProviderRedirect')->name('auth.redirection');
@@ -51,12 +55,17 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/booked-appointment', [AccountController::class, 'bookedAppointment'])->name('booked.appointments');
     Route::delete('/appointments/{id}', [AccountController::class, 'destroy'])->name('appointments.destroy');
     Route::get('/appointments/{id}/receipt', [AccountController::class, 'generateReceipt'])->name('appointments.receipt');
-});
+    Route::patch('/appointments/cancel/{id}', [AccountController::class, 'appointmentCanceled'])->name('appointments.cancel');
+
+}); 
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.home');
     Route::get('/clientTherapist', [AdminController::class, 'clientTherapist'])->name('clientTherapist.data');
     Route::get('/Appointment', [AdminController::class, 'viewAppointment'])->name('viewAppointment');
+    Route::get('/transactionHistory', [AdminController::class, 'transactionHistory'])->name('transactionHistory');
+    Route::get('/admin/transaction-history', [AdminController::class, 'transactionHistory'])->name('transaction.history');
+    Route::get('/admin/download-report', [AdminController::class, 'downloadReport'])->name('transaction.download');
     Route::get('/therapistSched', [AdminController::class, 'therapistSched'])->name('therapistSched');
     Route::post('/admin/approve/{email}', [AdminController::class, 'approveAdmin'])->name('approve.admin');
     Route::post('/admin/reject/{email}', [AdminController::class, 'rejectAdmin'])->name('reject.admin');
@@ -64,9 +73,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/apppointments/edit/{id}', [AdminController::class, 'appointmentEdit'])->name('appointments.edit');
     Route::put('/admin/appointments/{appointment}', [AdminController::class, 'appointmentUpdate'])->name('appointments.update');
     Route::delete('/appointment/{id}', [AdminController::class, 'destroy'])->name('appointment.delete');
+    Route::delete('/systemUser/delete/{id}', [AdminController::class, 'systemuserdelete'])->name('systemUser.delete');
     Route::get('/dtrView/{therapist}/{weekOffset?}', [AdminController::class, 'dtrView'])->name('dtr.view');
     Route::get('/admin/systemUser', [AdminController::class, 'systemuser'])->name('systemUser');
     Route::get('/admin/viewDTR', [AdminController::class, 'viewDTR'])->name('viewDTR');
+    Route::get('/admin/manage-account', [AdminController::class, 'manageaccount'])->name('manage-account');
+    Route::get('systemUser/edit/{id}', [AdminController::class, 'systemuserEdit'])->name('systemUser.edit');
+    Route::put('systemUserUpdate/update/{id}', [AdminController::class, 'systemUserUpdate'])->name('systemUser.update');
+    Route::post('/appointment/update-therapist/{id}', [AdminController::class, 'updateTherapist'])->name('update.therapist');
+
+
+
 
 
     // Route::get('/admin/viewDTR/{therapist}/{weekOffset?}', [AdminController::class, 'viewDTR'])->name('viewDTR');
@@ -78,5 +95,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 Route::middleware(['auth', 'manager'])->group(function () {
     Route::get('/therapist', [TherapistController::class, 'index'])->name('therapist.home');
     Route::get('/dailyTimeRecord', [TherapistController::class, 'dailyRecord'])->name('dailyTimeRecord');
+    Route::get('/manageTherapist', [TherapistController::class, 'manageTherapist'])->name('manageTherapist-account');
     Route::post('/dailyTimeRecord', [TherapistController::class, 'therapistDtr'])->name('therapist.dtr');
+    Route::put('/accountTherapist/update', [TherapistController::class, 'update'])->name('accountTherapist.update');
+    Route::put('/accountTherapist/password', [TherapistController::class, 'password'])->name('accountTherapist.password');
 });

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+
 class AccountController extends Controller
 {
     // Update Account Details
@@ -61,7 +62,7 @@ class AccountController extends Controller
     {
         // Retrieve only appointments of the logged-in user with pagination
         $appointments = Appointment::where('user_id', Auth::id())->paginate(10); // 10 items per page
-        
+
         return view('appointment.bookedAppointment', compact('appointments'));
     }
 
@@ -76,7 +77,7 @@ class AccountController extends Controller
     public function generateReceipt($id)
     {
         $appointment = Appointment::findOrFail($id);
-        
+
         $services = json_decode($appointment->services, true); // Convert JSON to array
         $therapist = $appointment->therapist;
         $date = $appointment->date;
@@ -89,5 +90,19 @@ class AccountController extends Controller
         $pdf = Pdf::loadView('appointment.receipt', compact('appointment', 'services', 'therapist', 'date', 'time', 'quantity', 'duration', 'amount', 'total'));
 
         return $pdf->stream('receipt.pdf'); // Display in browser
+    }
+
+    public function appointmentCanceled(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string|in:Pending,Approved,Cancelled,Completed',
+        ]);
+
+        $appointment = Appointment::findOrFail($id);
+        $appointment->status = $request->status;
+        $appointment->save();
+
+        notify()->success('Appointment status updated successfully');
+        return redirect()->back()->with('success', 'Appointment status updated successfully!');
     }
 }

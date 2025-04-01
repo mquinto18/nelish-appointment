@@ -11,7 +11,6 @@
 
     .selected {
         background-color: #4CAF50 !important;
-        /* Highlight selected */
         color: white !important;
     }
 
@@ -21,7 +20,6 @@
 
     .therapist-card.selected {
         background-color: #2F855A !important;
-        /* Darker green for selection */
     }
 </style>
 
@@ -30,15 +28,13 @@
 
     <h1 class="text-white text-center">Select Time and Therapist</h1>
 
-    <form action="{{ route('appointment.timeStore') }}" method="POST">
+    <form action="{{ route('appointment.timeStore') }}" method="POST" onsubmit="return validateForm()">
         @csrf
         <input type="hidden" name="selected_time" id="selected_time">
-        <input type="hidden" id="selected_therapist" name="selected_therapist" value="[]">
-
+        <input type="hidden" id="selected_therapist" name="selected_therapist">
 
         <div class="flex justify-center items-center">
             <div class="flex flex-col gap-10 justify-center p-6">
-                <!-- Time Selection -->
                 <div class="bg-[#FFFFDB] p-4 rounded-md">
                     <p class="font-bold text-[20px]">Select Time</p>
                     <table class="w-[500px] border-collapse">
@@ -50,7 +46,7 @@
                             '4:00 PM', '4:30 PM', '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM',
                             '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM', '10:00 PM', '10:30 PM', '11:00 PM'];
 
-                            $maxSlots = 3; // Maximum slots per time
+                            $maxSlots = 3;
                             @endphp
 
                             @foreach ($timeSlots as $index => $time)
@@ -58,38 +54,33 @@
                             $bookingCount = isset($bookedTimes[$time]) ? $bookedTimes[$time] : 0;
                             $availableSlots = max(0, $maxSlots - $bookingCount);
                             $isFullyBooked = $availableSlots <= 0;
-                                @endphp
+                            @endphp
 
-                                {{-- Open a new row every 3 items --}}
-                                @if ($index % 3==0)
-                                <tr>
-                                @endif
+                            @if ($index % 3 == 0)
+                            <tr>
+                            @endif
 
-                                <td class="border px-4 py-3 text-center {{ $isFullyBooked ? 'bg-[#F54C4C] text-white' : 'cursor-pointer time-option' }}"
-                                    onclick="{{ $isFullyBooked ? '' : "selectTime(this, '$time')" }}">
-                                    <div>{{ $time }}</div>
-                                    <div class="text-sm text-gray-600">
-                                        @if (!$isFullyBooked)
-                                        ({{ $availableSlots }} {{ $availableSlots == 1 ? 'slot' : 'slots' }} available)
-                                        @else
-                                        (Fully booked)
-                                        @endif
-                                    </div>
-                                </td>
+                            <td class="border px-4 py-3 text-center {{ $isFullyBooked ? 'bg-[#F54C4C] text-white' : 'cursor-pointer time-option' }}"
+                                onclick="{{ $isFullyBooked ? '' : "selectTime(this, '$time')" }}">
+                                <div>{{ $time }}</div>
+                                <div class="text-sm text-gray-600">
+                                    @if (!$isFullyBooked)
+                                    ({{ $availableSlots }} {{ $availableSlots == 1 ? 'slot' : 'slots' }} available)
+                                    @else
+                                    (Fully booked)
+                                    @endif
+                                </div>
+                            </td>
 
-
-                                {{-- Close row every 3 items or at the last item --}}
-                                @if ($index % 3 == 2 || $index == count($timeSlots) - 1)
-                                </tr>
-                                @endif
-                                @endforeach
+                            @if ($index % 3 == 2 || $index == count($timeSlots) - 1)
+                            </tr>
+                            @endif
+                            @endforeach
                         </tbody>
                     </table>
-
                 </div>
 
-                <!-- Therapist Selection -->
-                <div class="bg-[#FFFFDB] p-4 rounded-md">
+                <!-- <div class="bg-[#FFFFDB] p-4 rounded-md">
                     <p class="font-bold text-[20px]">Select Therapist</p>
                     <table class="w-full border-collapse border border-gray-300 mt-3">
                         @foreach ($therapists as $therapist)
@@ -99,7 +90,7 @@
                         @endphp
 
                         <td class="border border-gray-300 px-6 py-4 text-center cursor-pointer 
-        {{ $isBooked ? 'bg-red-400 text-white cursor-not-allowed' : '' }} "
+                            {{ $isBooked ? 'bg-red-400 text-white cursor-not-allowed' : '' }} "
                             onclick="{{ !$isBooked ? "selectTherapist(this, '$therapist->id', '$therapist->first_name')" : '' }}">
                             {{ $therapist->first_name }}
                             @if ($isBooked)
@@ -107,11 +98,8 @@
                             @endif
                         </td>
                         @endforeach
-
-
                     </table>
-                </div>
-
+                </div> -->
             </div>
 
             <div class="bg-[#FFFFDB] my-20 mx-10 w-[500px] rounded-md flex flex-col justify-between min-h-[400px]">
@@ -135,7 +123,6 @@
                 <p>No booking data available.</p>
                 @endif
 
-
                 <input type="hidden" name="selected_date" id="selected_date">
                 <div class="p-4 border-t border-black text-center">
                     <button type="submit" class="bg-yellow-400 px-6 py-2 rounded-md">
@@ -144,44 +131,29 @@
                 </div>
             </div>
         </div>
-
-
     </form>
 </div>
 
 <script>
     function selectTime(element, time) {
         document.getElementById('selected_time').value = time;
-
-        // Remove previous selection
-        document.querySelectorAll('.time-option, .select-time-btn').forEach(el => el.classList.remove('selected'));
-
-        // Highlight selected
+        document.querySelectorAll('.time-option').forEach(el => el.classList.remove('selected'));
         element.classList.add('selected');
     }
 
-    function selectTherapist(element, id, name) {
-        let selectedInput = document.getElementById('selected_therapist');
-        let selectedTherapists = selectedInput.value ? JSON.parse(selectedInput.value) : [];
+    // function selectTherapist(element, id, name) {
+    //     let selectedInput = document.getElementById('selected_therapist');
+    //     document.querySelectorAll('td[onclick^="selectTherapist"]').forEach(el => el.classList.remove('selected'));
+    //     selectedInput.value = name.trim();
+    //     element.classList.add('selected');
+    // }
 
-        // If the same therapist is clicked again, deselect them
-        if (selectedTherapists.includes(name)) {
-            selectedTherapists = []; // Clear selection
-            element.classList.remove('selected');
-        } else {
-            // Deselect any previously selected therapist
-            document.querySelectorAll('.therapist').forEach(el => el.classList.remove('selected'));
-
-            // Select the new therapist
-            selectedTherapists = [name];
-            element.classList.add('selected');
-        }
-
-        // Update the input value
-        selectedInput.value = JSON.stringify(selectedTherapists);
-
-        console.log("Selected Therapist:", selectedInput.value);
-    }
+    // function validateForm() {
+    //     if (!document.getElementById('selected_time').value || !document.getElementById('selected_therapist').value) {
+    //         alert('Please select a time and a therapist before proceeding.');
+    //         return false;
+    //     }
+    //     return true;
+    // }
 </script>
-
 @endsection

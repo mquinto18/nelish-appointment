@@ -87,7 +87,19 @@
                         </td>
                         <td class="border border-gray-300 px-4 py-2">{{ \Carbon\Carbon::parse($appointment->date)->format('F d, Y') }}</td>
                         <td class="border border-gray-300 px-4 py-2">{{ \Carbon\Carbon::parse($appointment->time)->format('g:i A') }}</td>
-                        <td class="border border-gray-300 px-4 py-2">{{ $appointment->therapist }}</td>
+                        <td class="border border-gray-300 px-4 py-2">
+                            <form action="{{ route('update.therapist', $appointment->id) }}" method="POST">
+                                @csrf
+                                <select name="therapist" class="border p-1 rounded w-full" onchange="this.form.submit()">
+                                    <option value=""></option>
+                                    @foreach ($managers as $manager)
+                                    <option value="{{ $manager->first_name }}" {{ $appointment->therapist == $manager->first_name ? 'selected' : '' }}>
+                                        {{ $manager->first_name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        </td>
                         <td class="border border-gray-300 px-4 py-2">
                             <form action="{{ route('update.appointment.status', $appointment->id) }}" method="POST">
                                 @csrf

@@ -12,7 +12,7 @@
     <div class="p-3">
         <h1 class="text-[30px] text-white">Edit Appointment</h1>
         <div class="bg-white w-full p-3 rounded-md">
-            <form action="{{ route('appointments.update', $appointment->id) }}" method="POST">
+            <form action="{{ route('appointments.update', $appointment->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -53,6 +53,34 @@
                         <label for="duration" class="form-label font-medium text-black block mb-2">Duration</label>
                         <input type="text" class="form-control block w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="duration" name="duration" value="{{ old('duration', $appointment->duration) }}" required>
                     </div>
+
+                    <!-- Payment Proof Preview -->
+                    <div>
+                        <label for="payment_proof" class="form-label font-medium text-black block mb-2">Payment Proof</label>
+                        <div class="mb-2">
+                            @if ($appointment->payment_proof)
+                            <p>Current Payment Proof:</p>
+                            <!-- Thumbnail Image -->
+                            <img src="{{ asset('storage/' . $appointment->payment_proof) }}"
+                                alt="Payment Proof"
+                                class="w-32 h-32 object-cover mt-2 cursor-pointer"
+                                onclick="openModal('{{ asset('storage/' . $appointment->payment_proof) }}')">
+                            @else
+                            <p>No payment proof uploaded.</p>
+                            @endif
+                        </div>
+                        <input type="file" class="form-control block w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="payment_proof" name="payment_proof">
+                    </div>
+
+                    <!-- Payment Status -->
+                    <div>
+                        <label for="payment_status" class="form-label font-medium text-black block mb-2">Payment Status</label>
+                        <select class="form-control block w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" id="payment_status" name="payment_status" required>
+                            <option value="paid" {{ old('payment_status', $appointment->payment_status) == 'paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="not paid" {{ old('payment_status', $appointment->payment_status) == 'not paid' ? 'selected' : '' }}>Not Paid</option>
+                        </select>
+                    </div>
+
                 </div>
 
                 <div class="flex gap-2 mt-4">
@@ -61,8 +89,28 @@
                     </a>
                     <button type="submit" class="bg-[#096156] w-full text-white p-2 rounded-md">Save</button>
                 </div>
+
+ <!-- Modal -->
+<div id="imageModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 hidden" onclick="closeModal(event)">
+    <div class="relative">
+        <img id="modalImage" src="" class="max-w-full max-h-screen rounded-lg">
+    </div>
+</div>
             </form>
         </div>
     </div>
 </div>
+<script>
+    function openModal(imageSrc) {
+        document.getElementById("modalImage").src = imageSrc;
+        document.getElementById("imageModal").classList.remove("hidden");
+    }
+
+    function closeModal(event) {
+        // Close only if clicking outside the image
+        if (event.target.id === "imageModal") {
+            document.getElementById("imageModal").classList.add("hidden");
+        }
+    }
+</script>
 @endsection

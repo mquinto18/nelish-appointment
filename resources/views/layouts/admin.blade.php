@@ -54,7 +54,7 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li class="mx-4 w-[200px]">
-                                <a href="/admin" class="block no-underline text-black">
+                                <a href="{{ route('manageTherapist-account') }}" class="block no-underline text-black">
                                     <div class="bg-white py-2 rounded-md">
                                         Manage account
                                     </div>
@@ -111,6 +111,11 @@
                     <a href="{{ route('viewAppointment') }}" class="block no-underline text-black">
                         <div class="bg-white py-2 px-3 rounded-md">
                             View Appointment
+                        </div>
+                    </a>
+                    <a href="{{ route('transactionHistory') }}" class="block no-underline text-black">
+                        <div class="bg-white py-2 px-3 rounded-md">
+                           Transaction History
                         </div>
                     </a>
 

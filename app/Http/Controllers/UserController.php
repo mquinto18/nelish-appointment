@@ -93,59 +93,54 @@ class UserController extends Controller
         return redirect()->route('appointment.time')->with('success', 'Service details stored in session.');
     }
     public function appointmentTime()
-{
-    $bookingData = session('service_booking', []);
-    $selectedDate = session('selected_date', now()->toDateString());
+    {
+        $bookingData = session('service_booking', []);
+        $selectedDate = session('selected_date', now()->toDateString());
 
-    // Retrieve duration from session or set a default value
-    $duration = session('service_booking.duration', 60);
+        // Retrieve duration from session or set a default value
+        $duration = session('service_booking.duration', 60);
 
-    // Retrieve all booked times with booking count
-    $bookedTimes = AppointmentSlot::where('date', $selectedDate)
-        ->pluck('booking_count', 'time') // Retrieve time and booking count
-        ->mapWithKeys(function ($count, $time) {
-            return [\Carbon\Carbon::createFromFormat('H:i:s', $time)->format('g:i A') => $count];
-        })
-        ->toArray();
+        // Retrieve all booked times with booking count
+        $bookedTimes = AppointmentSlot::where('date', $selectedDate)
+            ->pluck('booking_count', 'time') // Retrieve time and booking count
+            ->mapWithKeys(function ($count, $time) {
+                return [\Carbon\Carbon::createFromFormat('H:i:s', $time)->format('g:i A') => $count];
+            })
+            ->toArray();
 
-    // ✅ Get therapists who are booked per time slot
-    $bookedTherapists = AppointmentSlot::where('date', $selectedDate)
-        ->pluck('user_id', 'time') // Retrieve therapist IDs per time slot
-        ->mapWithKeys(function ($therapistId, $time) {
-            return [\Carbon\Carbon::createFromFormat('H:i:s', $time)->format('g:i A') => $therapistId];
-        })
-        ->toArray();
+        // ✅ Get therapists who are booked per time slot
+        $bookedTherapists = AppointmentSlot::where('date', $selectedDate)
+            ->pluck('user_id', 'time') // Retrieve therapist IDs per time slot
+            ->mapWithKeys(function ($therapistId, $time) {
+                return [\Carbon\Carbon::createFromFormat('H:i:s', $time)->format('g:i A') => $therapistId];
+            })
+            ->toArray();
 
-    $therapists = User::where('role', 'manager')->get();
+        $therapists = User::where('role', 'manager')->get();
 
-    return view('appointment.time_appointment', compact(
-        'bookingData', 'therapists', 'bookedTimes', 'bookedTherapists', 'selectedDate', 'duration'
-    ));
-}
+        return view('appointment.time_appointment', compact(
+            'bookingData',
+            'therapists',
+            'bookedTimes',
+            'bookedTherapists',
+            'selectedDate',
+            'duration'
+        ));
+    }
 
 
 
 
     public function storeTime(Request $request)
     {
-
         $validated = $request->validate([
             'selected_time' => 'required',
-            'selected_therapist' => 'required|string', // JSON string
         ]);
 
-        // Decode the JSON string into an array
-        $selectedTherapists = json_decode($validated['selected_therapist'], true);
+        // Store the selected time as an array (for compatibility)
+        session(['selected_time' => ['time' => $validated['selected_time']]]);
 
-        // Store it correctly in the session
-        $bookingTime = [
-            'time' => $validated['selected_time'],
-            'therapist_name' => $selectedTherapists, // Store as an array
-        ];
-
-        session(['selected_time' => $bookingTime]);
-
-        return redirect()->route('appointment.appointment_confirm')->with('success', 'Time and therapist selection stored in session.');
+        return redirect()->route('appointment.appointment_confirm')->with('success', 'Time selection stored in session.');
     }
 
 
@@ -155,75 +150,80 @@ class UserController extends Controller
         $serviceBooking = session('service_booking', []);
         $selectedDate = session('selected_date', []);
         $selectedTime = session('selected_time', []);
-
+    
         $bookingData = array_merge($serviceBooking, $selectedDate, $selectedTime);
-
-        // Check if therapist exists in session
-        if (isset($bookingData['therapist_name'])) {
-            $therapists = is_array($bookingData['therapist_name']) ? $bookingData['therapist_name'] : json_decode($bookingData['therapist_name'], true);
-            $bookingData['therapist_name'] = is_array($therapists) ? implode(', ', $therapists) : 'Unknown Therapist';
-        } else {
-            $bookingData['therapist_name'] = 'Unknown Therapist';
-        }
-
+    
         return view('appointment.confirm_appointment', compact('bookingData'));
     }
+    
+
 
 
 
 
     public function confirmStore(Request $request)
-    {
-        $validated = $request->validate([
-            'services' => 'required|array',
-            'duration' => 'required|integer',
-            'quantity' => 'required|integer',
-            'date' => 'required|date',
-            'time' => 'required',
-            'therapist' => 'required|string',
-            'amount' => 'required|numeric',
-            'payment_method' => 'required|in:cash,gcash', // Validate payment method
-        ]);
+{
+    // Validate the incoming request
+    $validated = $request->validate([
+        'services' => 'required|array',
+        'duration' => 'required|integer',
+        'quantity' => 'required|integer',
+        'date' => 'required|date',
+        'time' => 'required',
+        'amount' => 'required|numeric',
+        'payment_method' => 'required|in:cash,gcash',
+        'payment_proof' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate payment proof (optional)
+    ]);
+
+    // Debugging: Check if the file exists in the request
+    if ($request->hasFile('payment_proof')) {
+        // Store the uploaded file in 'storage/app/public/payment_proofs'
+        $paymentProofPath = $request->file('payment_proof')->store('payment_proofs', 'public');
     
-        $user = Auth::user();
-        $validated['time'] = Carbon::parse($validated['time'])->format('H:i:s');
-        $validated['services'] = json_encode($validated['services']);
-        $validated['user_id'] = $user->id ?? null;
-        $validated['name'] = $user->first_name ?? 'Guest';
-        $validated['email'] = $user->email ?? null;
-    
-        // **Check existing slot record**
-        $slot = AppointmentSlot::where('time', $validated['time'])
-            ->where('therapist', $validated['therapist'])
-            ->where('date', $validated['date'])
-            ->first();
-    
-        if ($slot && $slot->booking_count >= 3) {
-            return redirect()->back()->with('error', 'The selected time slot is fully booked.');
-        }
-    
-        // **Create Appointment**
-        $appointment = Appointment::create($validated);
-    
-        // **Reserve Slot**
-        if ($slot) {
-            // If the slot already exists, increment booking_count
-            $slot->increment('booking_count');
-        } else {
-            // Otherwise, create a new slot with booking_count = 1
-            AppointmentSlot::create([
-                'user_id' => $validated['user_id'],
-                'time' => $validated['time'],
-                'therapist' => $validated['therapist'],
-                'date' => $validated['date'],
-                'booking_count' => 1, // Set initial count
-            ]);
-        }
-    
-        notify()->success('Appointment submitted successfully!');
-        return redirect()->route('home')->with('success', 'Appointment booked successfully!');
+        // Store the file path in the validated data (modify based on your logic)
+        $validated['payment_proof'] = $paymentProofPath;
+    } else {
+        // If no file is uploaded, set it to null or handle it accordingly
+        $validated['payment_proof'] = null;
     }
     
+
+    $user = Auth::user();
+    $validated['time'] = Carbon::parse($validated['time'])->format('H:i:s');
+    $validated['services'] = json_encode($validated['services']);
+    $validated['user_id'] = $user->id ?? null;
+    $validated['name'] = $user->first_name ?? 'Guest';
+    $validated['email'] = $user->email ?? null;
+
+    // **Check existing slot record**
+    $slot = AppointmentSlot::where('time', $validated['time'])
+        ->where('date', $validated['date'])
+        ->first();
+
+    // If the slot is fully booked, return an error
+    if ($slot && $slot->booking_count >= 3) {
+        return redirect()->back()->with('error', 'The selected time slot is fully booked.');
+    }
+
+    // **Create Appointment**
+    $appointment = Appointment::create($validated);
+
+    // **Reserve Slot**
+    if ($slot) {
+        $slot->increment('booking_count');
+    } else {
+        AppointmentSlot::create([
+            'user_id' => $validated['user_id'],
+            'time' => $validated['time'],
+            'date' => $validated['date'],
+            'booking_count' => 1,
+        ]);
+    }
+
+    // Notify success and redirect
+    notify()->success('Appointment submitted successfully!');
+    return redirect()->route('home')->with('success', 'Appointment booked successfully!');
+}
 
 
 

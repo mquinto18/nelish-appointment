@@ -20,7 +20,7 @@
         <div class="bg-white w-full p-5 rounded-md">
             <!-- Date Selection -->
             <div>
-                <label for="date" class="form-label font-medium text-black block mb-2">Select a date (MM/DD/YYYY)</label>
+                <label for="date" class="form-label font-medium text-black block mb-2">Select a date (DD/MM/YYYY)</label>
                 <input type="date" class="form-control block w-full border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     id="date" name="date" required>
             </div>

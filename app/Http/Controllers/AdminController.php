@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TransactionHistoryExport;
 use App\Models\Appointment;
 use App\Models\Therapist;
 use App\Models\TherapistDtr;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminController extends Controller
 {
@@ -21,10 +23,10 @@ class AdminController extends Controller
         $totalAppointments = Appointment::count();
         $completedAppointments = Appointment::where('status', 'completed')->count();
         $todaysAppointments = Appointment::whereDate('date', today())
-        ->where('status', 'approved')
-        ->take(2)
-        ->get();
-    
+            ->where('status', 'approved')
+            ->take(2)
+            ->get();
+
         $appointmentRequests = Appointment::where('status', 'pending')->take(2)->get();
 
         return view('admin', compact(
@@ -92,7 +94,9 @@ class AdminController extends Controller
     public function viewAppointment()
     {
         $appointments = Appointment::paginate(7);
-        return view('adminComponents.listAppointment', compact('appointments'));
+        $managers = User::where('role', 'manager')->get(); // Fetch all users with the manager role
+
+        return view('adminComponents.listAppointment', compact('appointments', 'managers'));
     }
 
 
@@ -117,25 +121,39 @@ class AdminController extends Controller
     }
 
     public function appointmentUpdate(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'therapist' => 'required|string|max:255',
-            'services' => 'required|string|max:255',
-            'date' => 'required|date',
-            'time' => 'required',
-            'amount' => 'required|numeric',
-            'quantity' => 'required|integer',
-            'duration' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email',
+        'therapist' => 'required|string|max:255',
+        'services' => 'required|string|max:255',
+        'date' => 'required|date',
+        'time' => 'required',
+        'amount' => 'required|numeric',
+        'quantity' => 'required|integer',
+        'duration' => 'required|string',
+        'payment_status' => 'required|in:paid,not paid', // Ensure valid payment status
+    ]);
 
-        $appointment = Appointment::findOrFail($id);
-        $appointment->update($request->all());
+    $appointment = Appointment::findOrFail($id);
+    
+    // Update only allowed fields
+    $appointment->update([
+        'name' => $request->name,
+        'email' => $request->email,
+        'therapist' => $request->therapist,
+        'services' => $request->services,
+        'date' => $request->date,
+        'time' => $request->time,
+        'amount' => $request->amount,
+        'quantity' => $request->quantity,
+        'duration' => $request->duration,
+        'payment_status' => $request->payment_status,
+    ]);
 
-        notify()->success('Appointment updated successfully');
-        return redirect()->route('appointments.edit', $id)->with('success', 'Appointment updated successfully!');
-    }
+    notify()->success('Appointment updated successfully');
+    return redirect()->route('appointments.edit', $id)->with('success', 'Appointment updated successfully!');
+}
 
     public function destroy($id)
     {
@@ -150,9 +168,22 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Appointment deleted successfully.');
     }
 
+    public function systemuserdelete($id)
+    {
+        $user = User::find($id); // Find user instead of appointment
+
+        if (!$user) {
+            return redirect()->back()->with('error', 'User not found.');
+        }
+
+        $user->delete(); // Delete user
+
+        notify()->success('User deleted successfully');
+        return redirect()->back()->with('success', 'User deleted successfully.');
+    }
+
     public function therapistSched()
     {
-
         $managers = User::where('role', 'manager')->get();
         $appointments = Appointment::whereIn('therapist', $managers->pluck('first_name'))->get();
 
@@ -240,5 +271,86 @@ class AdminController extends Controller
         $appointments = Appointment::whereIn('therapist', $managers->pluck('first_name'))->get();
 
         return view('adminComponents.viewDtr', compact('managers', 'appointments'));
+    }
+
+    public function manageaccount()
+    {
+        // Fetch only users where role is 'admin'
+        $admins = User::where('role', 'admin')->get();
+
+        return view('adminComponents.manageAccount', compact('admins'));
+    }
+
+    public function systemuserEdit($id)
+    {
+        // Retrieve the user by ID
+        $user = User::findOrFail($id);
+
+        // Return the view with the user data
+        return view('adminComponents.systemUserEdit', compact('user'));
+    }
+    public function systemUserUpdate(Request $request, $id)
+    {
+        // Validate the incoming request
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
+            'mobile_number' => 'nullable|string|max:20',
+            'gender' => 'nullable|string|max:10',
+            'birth_date' => 'nullable|date',
+        ]);
+
+        // Find the user by ID
+        $user = User::findOrFail($id);
+
+        // Update the user's information
+        $user->first_name = $request->input('first_name');
+        $user->last_name = $request->input('last_name');
+        $user->email = $request->input('email');
+        $user->mobile_number = $request->input('mobile_number');
+        $user->gender = $request->input('gender');
+        $user->birth_date = $request->input('birth_date');
+
+        // Save the changes
+        $user->save();
+
+        notify()->success('Updated successfully!');
+        return redirect()->back()->with('success', 'User updated successfully!');
+    }
+    public function updateTherapist(Request $request, $id)
+    {
+        $appointment = Appointment::findOrFail($id);
+        $appointment->therapist = $request->therapist;
+        $appointment->save();
+        notify()->success('Updated successfully!');
+        return redirect()->back()->with('success', 'Therapist updated successfully!');
+    }
+
+    public function transactionHistory(Request $request)
+    {
+        $query = Appointment::where('status', 'Completed');
+
+        if ($request->has('year') && $request->year) {
+            $query->whereYear('date', $request->year);
+        }
+
+        if ($request->has('month') && $request->month) {
+            $query->whereMonth('date', $request->month);
+        }
+
+        $appointments = $query->get();
+
+        return view('adminComponents.transactionHistory', compact('appointments'));
+    }
+
+    public function downloadReport(Request $request)
+    {
+        $year = $request->input('year');
+        $month = $request->input('month');
+
+        $fileName = 'Transaction_History_' . ($year ?? 'All') . '_' . ($month ? date('F', mktime(0, 0, 0, $month, 1)) : 'All') . '.xlsx';
+
+        return Excel::download(new TransactionHistoryExport($year, $month), $fileName);
     }
 }

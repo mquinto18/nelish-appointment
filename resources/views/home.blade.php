@@ -179,7 +179,7 @@
                             </div>
                             <div class="flex items-center gap-4">
                                 <i class="fa-solid fa-phone-volume" style="color: #ffffff;"></i>
-                                <p>0918 250 8629 | 090994 638 0620</p>
+                                <p>0918 250 8629 | 0994 638 0620</p>
                             </div>
                             <div class="flex items-center gap-4">
                                 <i class="fa-solid fa-location-dot" style="color: #ffffff;"></i>
