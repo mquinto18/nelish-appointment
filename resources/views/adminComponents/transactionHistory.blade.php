@@ -35,7 +35,7 @@
                         @endforeach
                     </select>
 
-                    <button type="submit" class="bg-green-700 text-white px-4 py-2 rounded">Apply</button>
+                    <button type="submit" class="bg-[#096156] text-white px-4 py-2 rounded">Apply</button>
                 </form>
 
                 <!-- Download Report Button -->
@@ -43,6 +43,7 @@
                     <a href="{{ route('transaction.download', ['year' => request('year'), 'month' => request('month')]) }}" class="no-underline text-black font-bold">Download Reports</a>
                 </button>
             </div>
+            
 
             <!-- Transactions Table -->
             <table class="w-full border-collapse border border-gray-300">

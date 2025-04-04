@@ -8,13 +8,13 @@
         background-color: #096156;
     }
 </style>
-<div class="flex justify-center items-center min-h-screen">
+<div class="flex justify-center items-center">
     <div class="bg-[#20543E] p-8 rounded-2xl w-[50%] shadow-lg my-3">
         <h1 class="text-white text-2xl font-semibold mb-5">My Account</h1>
 
         <!-- Account Details Form -->
-        <div>
-            <div class="bg-[#2F614B] p-6 rounded-xl text-white">
+        <div class="flex gap-5">
+            <div class="bg-[#2F614B] p-6 rounded-xl text-white w-full">
             <h2 class="text-lg font-semibold mb-4">Account Details</h2>
 
             <form id="account-form" method="POST" action="{{ route('accountTherapist.update') }}">
@@ -74,7 +74,7 @@
         </div>
 
         <!-- Security Form -->
-        <div class="bg-[#2F614B] p-6 rounded-xl text-white mt-6">
+        <div class="bg-[#2F614B] p-6 rounded-xl text-white mt-6 w-full">
             <h2 class="text-lg font-semibold mb-4">Security</h2>
 
             <form id="security-form" method="POST" action="{{ route('accountTherapist.password') }}">

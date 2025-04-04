@@ -90,11 +90,11 @@
                             Daily Time Record
                         </div>
                     </a>
-                    <a href="" class="block no-underline text-black">
+                    <!-- <a href="" class="block no-underline text-black">
                         <div class="bg-white py-2 px-3 rounded-md">
                             Logout
                         </div>
-                    </a>
+                    </a> -->
 
 
                 </div>

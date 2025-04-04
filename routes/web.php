@@ -55,6 +55,8 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/booked-appointment', [AccountController::class, 'bookedAppointment'])->name('booked.appointments');
     Route::delete('/appointments/{id}', [AccountController::class, 'destroy'])->name('appointments.destroy');
     Route::get('/appointments/{id}/receipt', [AccountController::class, 'generateReceipt'])->name('appointments.receipt');
+    Route::get('/appointments/reschedule/{id}', [AccountController::class, 'reschedule'])->name('appointments.reschedule');
+    Route::put('/appointments/rescheduleUpdate/{id}', [AccountController::class, 'rescheduleUpdate'])->name('appointmentUpdate.reschedule');
     Route::patch('/appointments/cancel/{id}', [AccountController::class, 'appointmentCanceled'])->name('appointments.cancel');
 
 }); 
@@ -81,8 +83,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('systemUser/edit/{id}', [AdminController::class, 'systemuserEdit'])->name('systemUser.edit');
     Route::put('systemUserUpdate/update/{id}', [AdminController::class, 'systemUserUpdate'])->name('systemUser.update');
     Route::post('/appointment/update-therapist/{id}', [AdminController::class, 'updateTherapist'])->name('update.therapist');
-
-
+    Route::get('/manageadmin', [AdminController::class, 'manageadmin'])->name('manageadmin-account');
+    Route::put('/accountAdmin/update', [AdminController::class, 'update'])->name('accountAdmin.update');
+    Route::put('/accountAdmin/password', [AdminController::class, 'password'])->name('accountAdmin.password');
 
 
 

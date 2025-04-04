@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\TherapistDtr;
 use Carbon\Carbon;
-use Illuminate\Container\Attributes\Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -69,7 +69,7 @@ class TherapistController extends Controller
 
     public function manageTherapist()
     {
-        return view('auth.manageTherapist');
+        return view('adminComponents.adminManageAccount');
     }
 
     public function update(Request $request)

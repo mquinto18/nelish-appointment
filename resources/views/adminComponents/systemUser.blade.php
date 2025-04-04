@@ -66,7 +66,7 @@
                                     data-name="{{ $user->first_name }} {{ $user->last_name }}"
                                     data-email="{{ $user->email }}"
                                     data-role="{{ $user->role }}"
-                                    data-birthdate="{{ $user->birthdate ?? 'N/A' }}"
+                                    data-birthdate="{{ $user->birth_date ?? 'N/A' }}"
                                     data-number="{{ $user->mobile_number ?? 'N/A' }}"
                                     data-gender="{{ $user->gender ?? 'N/A' }}">
                                     <i class="fa-solid fa-eye"></i>
@@ -216,7 +216,7 @@
 </div>
 
 <!-- Bootstrap JS (Ensure Bootstrap is included in your layout) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     function togglePassword() {
         let passwordInput = document.getElementById('password');

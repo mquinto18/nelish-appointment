@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionHistoryExport implements FromCollection, WithHeadings, WithMapping
 {

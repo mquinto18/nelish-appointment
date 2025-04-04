@@ -8,7 +8,7 @@
     </a>
 
     <a href="{{ url('home/services-appointment/appointmentTime') }}" class='no-underline text-black flex justify-center items-center gap-2 cursor-pointer py-2 px-4 text-lg text-gray {{ request()->is('dashboard/appointment/select-therapist-time') ? 'font-medium text-bold' : 'border-b-2 border-b-transparent hover:border-b-blue-700' }}'>
-        <span>SELECT THERAPIST AND TIME ></span>
+        <span>SELECT TIME ></span>
     </a>
 
     <a href="" class='no-underline text-black flex justify-center items-center gap-2 cursor-pointer py-2 px-4 text-lg text-gray {{ request()->is('dashboard/appointment/confirmDetails') ? 'font-medium text-bold' : 'border-b-2 border-b-transparent hover:border-b-blue-700' }}'>

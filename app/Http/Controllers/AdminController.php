@@ -8,6 +8,7 @@ use App\Models\Therapist;
 use App\Models\TherapistDtr;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 use Illuminate\Support\Facades\Hash;
@@ -192,25 +193,35 @@ class AdminController extends Controller
 
 
     public function dtrView(Request $request, $therapist, $weekOffset = 0)
-    {
-        $weekOffset = (int) $weekOffset;
-        $month = $request->query('month');
+{
+    $weekOffset = (int) $weekOffset;
+    $month = $request->query('month');
 
-        $selectedMonth = $month ? Carbon::parse("1 $month")->month : null;
+    // Convert month name to a numeric value
+    $selectedMonth = $month ? Carbon::parse("1 $month")->month : null;
+    $currentYear = Carbon::now()->year;
 
+    if ($selectedMonth) {
+        // If a month is selected, set startOfWeek to first day of the selected month
+        $startOfWeek = Carbon::createFromDate($currentYear, $selectedMonth, 1)->startOfWeek();
+    } else {
+        // Default: Use the current week with offset
         $startOfWeek = Carbon::now()->startOfWeek()->addWeeks($weekOffset);
-        $endOfWeek = $startOfWeek->copy()->endOfWeek();
-
-
-        $dtrRecords = TherapistDtr::where('name', $therapist)
-            ->when($selectedMonth, function ($query) use ($selectedMonth) {
-                return $query->whereMonth('date', $selectedMonth);
-            })
-            ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
-            ->get();
-
-        return view('adminComponents.adminDtrView', compact('dtrRecords', 'therapist', 'weekOffset', 'startOfWeek', 'endOfWeek', 'selectedMonth'));
     }
+
+    $endOfWeek = $startOfWeek->copy()->endOfWeek();
+
+    // Filter DTR records by therapist and selected month
+    $dtrRecords = TherapistDtr::where('name', $therapist)
+        ->when($selectedMonth, function ($query) use ($selectedMonth) {
+            return $query->whereMonth('date', $selectedMonth);
+        })
+        ->whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+        ->get();
+
+    return view('adminComponents.adminDtrView', compact('dtrRecords', 'therapist', 'weekOffset', 'startOfWeek', 'endOfWeek', 'selectedMonth'));
+}
+
 
     public function systemuser(Request $request)
     {
@@ -352,5 +363,53 @@ class AdminController extends Controller
         $fileName = 'Transaction_History_' . ($year ?? 'All') . '_' . ($month ? date('F', mktime(0, 0, 0, $month, 1)) : 'All') . '.xlsx';
 
         return Excel::download(new TransactionHistoryExport($year, $month), $fileName);
+    }
+
+    public function manageadmin(){
+        return view('adminComponents.manageadmin');
+    }
+
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'gender' => 'required|in:male,female,other',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'birth_date' => 'nullable|date',
+            'mobile_number' => 'nullable|string|max:15',
+        ]);
+
+        $user->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'gender' => $request->gender,
+            'email' => $request->email,
+            'birth_date' => $request->birth_date,
+            'mobile_number' => $request->mobile_number,
+        ]);
+        notify()->success('Profile change successfully!');
+        return redirect()->back()->with('success', 'Account details updated successfully.');
+    }
+    public function password(Request $request)
+    {
+        $request->validate([
+            'old_password' => 'required',
+            'new_password' => 'required|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->old_password, $user->password)) {
+            return back()->withErrors(['old_password' => 'The old password is incorrect.']);
+        }
+        // Update the password
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+        notify()->success('Password updated successfully!');
+        return redirect()->back()->with('success', 'Password changed successfully!');
     }
 }

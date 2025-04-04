@@ -222,7 +222,7 @@ class UserController extends Controller
 
     // Notify success and redirect
     notify()->success('Appointment submitted successfully!');
-    return redirect()->route('home')->with('success', 'Appointment booked successfully!');
+    return redirect()->route('booked.appointments')->with('success', 'Appointment booked successfully!');
 }
 
 

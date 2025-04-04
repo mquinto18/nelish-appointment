@@ -28,7 +28,7 @@
                         <th class="text-center">Appointment Date</th>
                         <th class="text-center">Appointment Time</th>
                         <th class="text-center">Services Type</th>
-                       
+
                         <th class="text-center">Total Amount</th>
                         <th class="text-center">Payment Method</th>
                         <th class="text-center">Status</th>
@@ -55,7 +55,7 @@
                         <td class="py-3 px-4 border-b">
                             {{ is_array(json_decode($appointment->services, true)) ? implode(', ', json_decode($appointment->services, true)) : $appointment->services }}
                         </td>
-                    
+
                         <td class="py-3 px-4 border-b">{{ number_format($appointment->amount, 2) }}</td>
                         <td class="py-3 px-4 border-b">{{ $appointment->payment_method }}</td>
                         <td class="py-3 px-4 border-b">{{ ucfirst($appointment->status) }}</td>
@@ -90,7 +90,12 @@
                                         </button>
                                     </form>
 
-                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">Reschedule</a>
+                                    <form method="GET" action="{{ route('appointments.reschedule', $appointment->id) }}">
+                                        @csrf
+                                        <button type="submit" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 no-underline">
+                                            Reschedule
+                                        </button>
+                                    </form>
 
                                     @if ($appointment->payment_method === 'gcash')
                                     <a target="_blank" href="{{ route('appointments.receipt', $appointment->id) }}"

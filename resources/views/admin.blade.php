@@ -23,7 +23,7 @@
         </div>
 
         <!-- Total Appointments -->
-        <div class="bg-white w-full p-4 rounded-md flex items-center gap-3 shadow-md border-2 border-blue-500">
+        <div class="bg-white w-full p-4 rounded-md flex items-center gap-3 shadow-md border-2">
             <i class="fas fa-calendar-alt text-4xl"></i>
 
             <div>

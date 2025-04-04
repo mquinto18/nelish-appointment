@@ -90,12 +90,12 @@
                     <button type="submit" class="bg-[#096156] w-full text-white p-2 rounded-md">Save</button>
                 </div>
 
- <!-- Modal -->
-<div id="imageModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 hidden" onclick="closeModal(event)">
-    <div class="relative">
-        <img id="modalImage" src="" class="max-w-full max-h-screen rounded-lg">
-    </div>
-</div>
+                <!-- Modal -->
+                <div id="imageModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 hidden" onclick="closeModal(event)">
+                    <div class="relative">
+                        <img id="modalImage" src="" class="max-w-full max-h-screen rounded-lg">
+                    </div>
+                </div>
             </form>
         </div>
     </div>
