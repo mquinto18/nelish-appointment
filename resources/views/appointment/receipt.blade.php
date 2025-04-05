@@ -32,25 +32,26 @@
         </div>
 
         <table class="table">
-            <thead>
-                <tr>
-                    <th>Qty</th>
-                    <th>Service Type</th>
-                    <th>Duration</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($services as $service)
-                <tr>
-                    <td>{{ $quantity }}</td>
-                    <td>{{ $service }}</td>
-                    <td>{{ $duration }} mins</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <thead>
+        <tr>
+            <th>ID</th> <!-- Changed from Qty to ID -->
+            <th>Service Type</th>
+            <th>Duration</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach ($services as $service)
+        <tr>
+            <td>{{ $loop->iteration }}</td> <!-- Displays the current loop index -->
+            <td>{{ $service }}</td>
+            <td>{{ $duration }} mins</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
 
-        <p><strong>Grand Total:</strong> {{ number_format($total, 2) }}</p>
+
+        <p><strong>Grand Total:</strong> {{ $amount }}</p>
         
         <div class="footer">
             <p><strong>Payment Method:</strong> GCash</p>

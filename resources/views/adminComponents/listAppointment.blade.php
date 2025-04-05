@@ -101,18 +101,25 @@
                             </form>
                         </td>
                         <td class="border border-gray-300 px-4 py-2">
-                            <form action="{{ route('update.appointment.status', $appointment->id) }}" method="POST">
-                                @csrf
-                                <select name="status" onchange="this.form.submit()"
-                                    class="border p-1 rounded w-full {{ $appointment->status == 'Pending' ? 'bg-orange-400' : ($appointment->status == 'Approved' ? 'bg-green-400' : ($appointment->status == 'Completed' ? 'bg-blue-400' : 'bg-red-400')) }}
- text-white">
-                                    <option value="Pending" {{ $appointment->status == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                    <option value="Approved" {{ $appointment->status == 'Approved' ? 'selected' : '' }}>Approved</option>
-                                    <option value="Rejected" {{ $appointment->status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
-                                    <option value="Completed" {{ $appointment->status == 'Completed' ? 'selected' : '' }}>Completed</option>
-                                </select>
-                            </form>
-                        </td>
+    <form action="{{ route('update.appointment.status', $appointment->id) }}" method="POST">
+        @csrf
+        <select name="status" onchange="this.form.submit()"
+            class="border p-1 rounded w-full
+                {{ $appointment->status == 'Pending' ? 'bg-orange-400' : 
+                   ($appointment->status == 'Approved' ? 'bg-green-400' : 
+                   ($appointment->status == 'Completed' ? 'bg-blue-400' : 
+                   ($appointment->status == 'Cancelled' ? 'bg-gray-500' : 'bg-red-400'))) }} text-white"
+            {{ $appointment->status == 'Cancelled' ? 'disabled' : '' }}>
+            
+            <option value="Pending" {{ $appointment->status == 'Pending' ? 'selected' : '' }}>Pending</option>
+            <option value="Approved" {{ $appointment->status == 'Approved' ? 'selected' : '' }}>Approved</option>
+            <option value="Rejected" {{ $appointment->status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+            <option value="Completed" {{ $appointment->status == 'Completed' ? 'selected' : '' }}>Completed</option>
+            <option value="Cancelled" {{ $appointment->status == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
+        </select>
+    </form>
+</td>
+
                         <td class="border border-gray-300 px-4 py-2 text-center">
                             <div class="flex justify-center items-center gap-3">
                                 <form action="{{ route('appointments.edit', $appointment->id) }}" method="GET">

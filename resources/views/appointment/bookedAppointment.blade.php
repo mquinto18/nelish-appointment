@@ -21,6 +21,31 @@
 
         <div class="bg-white w-full p-3 rounded-md">
 
+            <!-- Filter Form -->
+            <div class="flex justify-between my-3">
+                <form method="GET" action="{{ route('booked.appointments') }}" class="flex items-center space-x-2 mb-3">
+                    <label for="year">Year</label>
+                    <select name="year" id="year" class="border p-2 rounded">
+                        <option value="">Select Year</option>
+                        @foreach (range(date('Y'), 2000) as $year)
+                        <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                        @endforeach
+                    </select>
+
+                    <label for="month">Month</label>
+                    <select name="month" id="month" class="border p-2 rounded">
+                        <option value="">Select Month</option>
+                        @foreach (range(1, 12) as $month)
+                        <option value="{{ $month }}" {{ request('month') == $month ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $month, 1)) }}
+                        </option>
+                        @endforeach
+                    </select>
+
+                    <button type="submit" class="bg-[#096156] text-white px-4 py-2 rounded">Apply</button>
+                </form>
+            </div>
+
             <table class="table table-bordered">
                 <thead class="table-light text-center align-middle">
                     <tr>
@@ -28,9 +53,9 @@
                         <th class="text-center">Appointment Date</th>
                         <th class="text-center">Appointment Time</th>
                         <th class="text-center">Services Type</th>
-
                         <th class="text-center">Total Amount</th>
                         <th class="text-center">Payment Method</th>
+                        <th class="text-center">Payment Status</th>
                         <th class="text-center">Status</th>
                         <th class="text-center">Actions</th>
                     </tr>
@@ -58,6 +83,7 @@
 
                         <td class="py-3 px-4 border-b">{{ number_format($appointment->amount, 2) }}</td>
                         <td class="py-3 px-4 border-b">{{ $appointment->payment_method }}</td>
+                        <td class="py-3 px-4 border-b">{{ $appointment->payment_status }}</td>
                         <td class="py-3 px-4 border-b">{{ ucfirst($appointment->status) }}</td>
                         <td class="py-3 px-4 border-b relative">
                             <div x-data="{ open: false }" class="relative">

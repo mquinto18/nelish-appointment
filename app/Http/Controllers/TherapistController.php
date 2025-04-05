@@ -69,7 +69,7 @@ class TherapistController extends Controller
 
     public function manageTherapist()
     {
-        return view('adminComponents.adminManageAccount');
+        return view('auth.manageTherapist');
     }
 
     public function update(Request $request)

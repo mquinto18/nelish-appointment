@@ -9,7 +9,7 @@
     }
 </style>
 <div class="flex justify-center items-center">
-    <div class="bg-[#20543E] p-8 rounded-2xl w-[50%] shadow-lg my-3">
+    <div class="bg-[#20543E] p-8 rounded-2xl w-full shadow-lg my-3">
         <h1 class="text-white text-2xl font-semibold mb-5">My Account</h1>
 
         <!-- Account Details Form -->
