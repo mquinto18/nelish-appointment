@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
-            $table->string('email')->unique();
+            $table->string('email')->nullable()->unique();
             $table->date('birth_date')->nullable();  // Make birth_date nullable (optional)
             $table->string('mobile_number', 15)->nullable(); // Allowing up to 15 characters for international formats
             $table->string('gender')->nullable();
